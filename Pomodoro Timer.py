@@ -10,7 +10,7 @@ def pomodoro_timer(work_minutes, short_break, long_break, sessions):
             print(f"\nTake a short break for {short_break} minutes!")                   #timer for short break
             countdown(short_break * 60)
         else:
-            print(f"\nGreat job! Take a long break for {long_break} minutes!")          #timer for long break
+            print(f"\nGreat job! Take a long break for {long_break} minutes!")          #timer for long break for last session
             countdown(long_break * 60)
         session += 1                                                                    #goes to next session
 
@@ -30,4 +30,5 @@ if __name__ == "__main__":
         print("Invalid input, defaulting to 4 sessions.")                               #if invalid, sets to 4 by default
         sessions = 4
     print("\nPomodoro Timer Started!")                                                  #states the timer has started
+
     pomodoro_timer(1,1,2,sessions)                                                      #starts timer w/ default testing values 
