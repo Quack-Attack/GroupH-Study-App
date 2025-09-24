@@ -31,3 +31,5 @@ if __name__ == "__main__":
         sessions = 4
     print("\nPomodoro Timer Started!")                                                  #states the timer has started
     pomodoro_timer(1,1,2,sessions)                                                      #starts timer w/ default testing values 
+
+    #HI terrry!
