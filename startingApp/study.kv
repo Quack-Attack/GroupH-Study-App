@@ -1,0 +1,56 @@
+<BottomNav@BoxLayout>:
+    size_hint_y: None
+    height: "50dp"
+    spacing: 10
+    padding: 20
+   
+    Button:
+        text: "To-Do"
+        on_press: app.root.current = "todo"
+    Button:
+        text: "Flash Cards"
+        on_press: app.root.current = "flashCards"
+    Button:
+        text: "Timer"
+        on_press: app.root.current = "timer"
+    Button:
+        text: "Settings"
+        on_press: app.root.current = "settings"
+
+<ToDoScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: 1
+            Label: 
+                text: "This is the ToDo Screen"
+            BottomNav:
+            
+<FlashCardsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: 1
+            Label: 
+                text: "This is the Flash Cards Screen"
+            BottomNav:
+
+<TimerScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: 1
+            Label: 
+                text: "This is the Timer Screen"
+            BottomNav:
+        
+<SettingsScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: 1
+            Label: 
+                text: "This is the Settings Screen"
+            BottomNav:
+    
+    
