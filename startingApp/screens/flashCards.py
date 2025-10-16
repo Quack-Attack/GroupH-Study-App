@@ -9,11 +9,6 @@ from kivy.uix.button import Button #this imports the Button from flashCards.kv
 
 class FlashCardsScreen(Screen):
     def OnSubmit(self):
-        TextInput = self.ids.TextInput
-        InputText = TextInput.text
-        OutputLabel = self.ids.OutputLabel
-        OutputLabel.text = InputText
-        TextInput.text = ""
         
         self.add_widget(Label(text = "Write on a card"))
         ToDoButton = Button(text='Flip')
