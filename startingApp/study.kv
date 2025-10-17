@@ -1,6 +1,5 @@
 <BottomNav@BoxLayout>:
     size_hint_y: None
-    
     height: "50dp"
     spacing: 10
     padding: 20
@@ -21,37 +20,47 @@
 <ToDoScreen>:
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
-            size_hint_y: 1
-            Label: 
-                text: "This is the ToDo Screen"
-            BottomNav:
+        Label: 
+            text: "User 1 To Do List"
+            height: dp(50)
+        ScrollView:
+            id: todo_list_scroll
+            BoxLayout:
+                id: todo_items_container
+                orientation: 'vertical'
+                size_hint_y: None
+                heigth: self.minimum_height
+        TextInput:
+            id: new_task_input
+            hint_text: "Add a new task..."
+            size_hint_y: None
+            height: dp(40)
+        Button:
+            text: "Add Task"
+            size_hint_y: None
+            height: dp(40)
+            on_press: app.root.get_screen('todo').addTask()
+        BottomNav:
             
 <FlashCardsScreen>:
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
-            size_hint_y: 1
-            Label: 
-                text: "This is the Flash Cards Screen"
-            BottomNav:
+        Label: 
+            text: "This is the Flash Cards Screen"
+        BottomNav:
 
 <TimerScreen>:
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
-            size_hint_y: 1
-            Label: 
-                text: "This is the Timer Screen"
-            BottomNav:
+        Label: 
+            text: "This is the Timer Screen"
+        BottomNav:
         
 <SettingsScreen>:
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
-            size_hint_y: 1
-            Label: 
-                text: "This is the Settings Screen"
-            BottomNav:
+        Label: 
+            text: "This is the Settings Screen"
+        BottomNav:
     
     

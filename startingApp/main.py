@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Oct 11 17:55:57 2025
 
-@author: rnpeo
-"""
 
 '''This is the management script.
     Here, all screens are imported and added 
@@ -27,18 +22,6 @@ from screens.settings import SettingsScreen #to be activated when the Settings s
 
 class WindowManager(ScreenManager):
     pass
-
-class ToDoScreen(Screen):
-    pass
-
-class FlashCardsScreen(Screen):
-    pass
-
-class TimerScreen(Screen):
-    pass
-
-class SettingsScreen(Screen):
-    pass    
 
 class StudyApp(App):
     def build(self):
