@@ -13,6 +13,4 @@ class FlashCardsScreen(Screen):
         self.add_widget(Label(text = "Write on a card"))
         ToDoButton = Button(text='Flip')
         
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.add_widget(Label(text="ToDo Screen Loaded!"))
+   
