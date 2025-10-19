@@ -55,6 +55,27 @@
             text: "Flip card"
             size_hint_x: None
             height: dp(20)
+            
+        #Flash Card Deck area
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_y: 1
+            padding: 20
+            spacing: 10
+            
+            canvas.before:
+                Color:
+                    rgba: 0.95, 0.95, 0.95, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [20]
+                    
+            #Flash Card Image
+            Image:
+                id: flashcard_image
+                source: 
+            
         BottomNav:
 
 <TimerScreen>:
