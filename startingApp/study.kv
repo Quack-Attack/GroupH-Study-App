@@ -1,3 +1,22 @@
+<RootWidget@FloatLayout>:
+    canvas.before:
+        Rectangle:
+            source: "assets/StandardBackground.png"
+            pos: self.pos
+            size: self.size    
+        
+    ScreenManager:
+        id: screen_manager
+        ToDoScreen:
+            name: "todo"
+        FlashCardsScreen:
+            name: "flashCards"
+        TimerScreen:
+            name: "timer"
+        SettingsScreen:
+            name: "settings"
+            
+            
 <BottomNav@BoxLayout>:
     size_hint_y: None
     height: "50dp"
@@ -7,22 +26,26 @@
     Button:
         text: "To-Do"
         on_press: app.root.current = "todo"
+    
     Button:
         text: "Flash Cards"
         on_press: app.root.current = "flashCards"
+    
     Button:
         text: "Timer"
         on_press: app.root.current = "timer"
+    
     Button:
         text: "Settings"
         on_press: app.root.current = "settings"
 
-<ToDoScreen>:
+<ToDoScreen@Screen>:
     BoxLayout:
         orientation: 'vertical'
         Label: 
             text: "User 1 To Do List"
             height: dp(50)
+        
         ScrollView:
             id: todo_list_scroll
             BoxLayout:
@@ -30,19 +53,22 @@
                 orientation: 'vertical'
                 size_hint_y: None
                 heigth: self.minimum_height
+        
         TextInput:
             id: new_task_input
             hint_text: "Add a new task..."
             size_hint_y: None
             height: dp(40)
+        
         Button:
             text: "Add Task"
             size_hint_y: None
             height: dp(40)
-            on_press: app.root.get_screen('todo').addTask()
+            on_press: app.root.ids.screen_manager.get_screen('todo').addTask()
+        
         BottomNav:
             
-<FlashCardsScreen>:
+<FlashCardsScreen@Screen>:
     BoxLayout:
         orientation: 'vertical'
         Label: 
@@ -78,18 +104,19 @@
             
         BottomNav:
 
-<TimerScreen>:
+<TimerScreen@Screen>:
     BoxLayout:
         orientation: 'vertical'
         Label: 
             text: "This is the Timer Screen"
+        
         BottomNav:
         
-<SettingsScreen>:
+<SettingsScreen@Screen>:
     BoxLayout:
         orientation: 'vertical'
         Label: 
             text: "This is the Settings Screen"
+        
         BottomNav:
-    
     

@@ -9,7 +9,7 @@
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.label import Label
-#from kivy.uix.button import Button #this imports the Button from study.kv
+from kivy.uix.floatlayout import FloatLayout #this imports the FloatLayout from study.kv
 
 from screens.todo import ToDoScreen #ToDo screen is incomplete, but this is the import call for the todo screen
 from screens.flashCards import FlashCardsScreen #FlashCards screen is incomplete, but this is the import call for the flash cards screen
@@ -23,8 +23,12 @@ from screens.settings import SettingsScreen #to be activated when the Settings s
 class WindowManager(ScreenManager):
     pass
 
+class RootWidget(FloatLayout):
+    pass
+
 class StudyApp(App):
     def build(self):
+        return RootWidget()
        
         sm = WindowManager() #building and naming the app's main manager
         
