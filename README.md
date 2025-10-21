@@ -1,3 +1,6 @@
+
+<img width="343" height="175" alt="Logo" src="https://github.com/user-attachments/assets/19102629-5550-451a-910d-3042738d8227" />
+
 # Study App (Placeholder Name)
 ## Project Overview
 [APP NAME] is an all-in-one study app designed to help students stay focused, organized, and efficient. It brings together proven study methods such as the Pomodoro timer, flashcards, and AI-powered tools, all in one easy-to-use platform.
