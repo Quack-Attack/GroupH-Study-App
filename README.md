@@ -1,5 +1,6 @@
-# Logo at the top of the README
-<img width="800" height="175" alt="Logo" src="https://github.com/user-attachments/assets/19102629-5550-451a-910d-3042738d8227" />
+
+<img width="662" height="156" alt="LogoLong" src="https://github.com/user-attachments/assets/ceba9a3a-6319-4f0d-bc96-31ee91b02bc8" />
+
 
 # Study App (Placeholder Name)
 ## Project Overview
