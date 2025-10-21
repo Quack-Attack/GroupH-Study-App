@@ -3,12 +3,12 @@
 
 # 
 ## Project Overview
-[APP NAME] is an all-in-one study app designed to help students stay focused, organized, and efficient. It brings together proven study methods such as the Pomodoro timer, flashcards, and AI-powered tools, all in one easy-to-use platform.
+Study. is an all-in-one study app designed to help students stay focused, organized, and efficient. It brings together proven study methods such as the Pomodoro timer, flashcards, and AI-powered tools, all in one easy-to-use platform.
 
 ---
 
 ## Why This Project is Useful
-Many students struggle with studying and the complexity of juggling multiple tools — timers, flashcards, notes, and AI helpers. [APP NAME] combines everything into one app, so you can focus on learning instead of switching between apps. The goal is to make studying more **efficient**, **organized**, and **effective**.
+Many students struggle with studying and the complexity of juggling multiple tools — timers, flashcards, notes, and AI helpers. Study. combines everything into one app, so you can focus on learning instead of switching between apps. The goal is to make studying more **efficient**, **organized**, and **effective**.
 
 ---
 
