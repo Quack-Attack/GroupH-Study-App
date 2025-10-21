@@ -1,5 +1,6 @@
 
-<img width="424" height="95" alt="LogoMed" src="https://github.com/user-attachments/assets/455fd3ed-a09f-43fa-8846-66021de4c993" />
+![LogoMed](https://github.com/user-attachments/assets/2f89aba6-d9ab-4166-9d50-5fd2e5bf6106)
+
 
 # 
 ## Project Overview
