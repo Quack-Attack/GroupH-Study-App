@@ -1,5 +1,5 @@
 
-<img width="664" height="91" alt="LogoLong" src="https://github.com/user-attachments/assets/4b37bb92-8067-4a7e-b4b7-e5d258de260c" />
+<img width="424" height="95" alt="LogoMed" src="https://github.com/user-attachments/assets/455fd3ed-a09f-43fa-8846-66021de4c993" />
 
 # 
 ## Project Overview
