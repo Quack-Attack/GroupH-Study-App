@@ -1,0 +1,57 @@
+import unittest
+from fCard_validator import validate_fCard, validate_fCardAmount
+
+
+class TestFCardValidator(unittest.TestCase):
+
+    # ----- Tests for individual flashcard validation -----
+    def test_valid_fCard(self):
+        self.assertTrue(validate_fCard(["Front text", "Back text"]))
+
+    def test_invalid_empty_front(self):
+        self.assertFalse(validate_fCard(["", "Definition"]))
+
+    def test_invalid_empty_back(self):
+        self.assertFalse(validate_fCard(["Term", ""]))
+
+    def test_invalid_not_a_list(self):
+        self.assertFalse(validate_fCard("justastring"))
+
+    def test_invalid_wrong_length(self):
+        self.assertFalse(validate_fCard(["only one side"]))
+
+    def test_invalid_too_long(self):
+        long_text = "x" * 201
+        self.assertFalse(validate_fCard(["front", long_text]))
+
+    def test_valid_boundary_length(self):
+        text = "x" * 200
+        self.assertTrue(validate_fCard([text, text]))
+
+    def test_invalid_non_string_elements(self):
+        self.assertFalse(validate_fCard([123, "definition"]))
+        self.assertFalse(validate_fCard(["term", None]))
+
+    # ----- Tests for total flashcard count validation -----
+    def test_valid_minimum_amount(self):
+        self.assertTrue(validate_fCardAmount(1))
+
+    def test_valid_maximum_amount(self):
+        self.assertTrue(validate_fCardAmount(1000))
+
+    def test_invalid_zero_amount(self):
+        self.assertFalse(validate_fCardAmount(0))
+
+    def test_invalid_above_max(self):
+        self.assertFalse(validate_fCardAmount(1001))
+
+    def test_invalid_negative_amount(self):
+        self.assertFalse(validate_fCardAmount(-5))
+
+    def test_invalid_non_integer(self):
+        self.assertFalse(validate_fCardAmount("ten"))
+        self.assertFalse(validate_fCardAmount(3.5))
+
+
+if __name__ == '__main__':
+    unittest.main()
