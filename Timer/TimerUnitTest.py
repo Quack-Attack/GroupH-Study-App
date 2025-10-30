@@ -5,6 +5,8 @@ import unittest
 from timer_validator import validate_work_timer, validate_short_timer, validate_long_timer
 class TestPomodoroTimer(unittest.TestCase):
     
+    #feel free to change values to test
+    
     def test_valid_work_minutes(self):                           #tests if minutes for working are valid (15-60 minutes) 
          work_minutes = 15                                       #test with 15 minutes
          self.assertTrue(validate_work_timer(work_minutes))
