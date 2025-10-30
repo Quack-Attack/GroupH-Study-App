@@ -75,40 +75,43 @@
 <FlashCardsScreen@Screen>:
     BoxLayout:
         orientation: 'vertical'
-        Label: 
-            text: "This is the Flash Cards Screen"
-        
-        Button:
-            text: "Add card"
-            size_hint_x: None
-            height: dp(20)
-        
-        Button:
-            text: "Flip card"
-            size_hint_x: None
-            height: dp(20)
-            
-        #Flash Card Deck area
+        padding: 10
+        spacing: 8
+
+        # list area (starts empty; Python will populate it in on_pre_enter)
+        RecycleView:
+            id: rv
+            viewclass: 'FlashCardRow'
+            data: []   
+            RecycleBoxLayout:
+                default_size: None, dp(56)
+                default_size_hint: 1, None
+                size_hint_y: None
+                height: self.minimum_height
+                orientation: 'vertical'
+
         BoxLayout:
-            orientation: 'vertical'
-            size_hint_y: 1
-            padding: 20
-            spacing: 10
-            
-            canvas.before:
-                Color:
-                    rgba: 0.95, 0.95, 0.95, 1
-                RoundedRectangle:
-                    pos: self.pos
-                    size: self.size
-                    radius: [20]
-                    
-            #Flash Card Image
-            Image:
-                id: flashcard_image
-                source: 
-            
+            size_hint_y: None
+            height: dp(48)
+            Button:
+                text: 'Add card'
+                on_release: root.open_add_popup()
+
         BottomNav:
+
+# Generate a row per flash card in the file.
+<FlashCardRow@BoxLayout>:
+    front: ''
+    back: ''
+    padding: 8
+    Label:
+        text: root.front
+    Button:
+        text: 'Flip'
+        size_hint_x: None
+        width: dp(72)
+        # Call the screen method (root is the FlashCardRow widget; root.parent... might not be the screen)
+        on_release: app.root.ids.screen_manager.get_screen('flashCards').show_back_popup(root.front, root.back)
 
 <TimerScreen@Screen>:
     BoxLayout:
