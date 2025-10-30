@@ -3,79 +3,78 @@
         Rectangle:
             source: "assets/StandardBackground.png"
             pos: self.pos
-            size: self.size    
-        
-    ScreenManager:
-        id: screen_manager
-        
+            size: self.size  
+            
+    MDScreenManager:
+        id: screen_manager_root
         ToDoScreen:
             name: "todo"
-        
         FlashCardsScreen:
             name: "flashCards"
-        
         TimerScreen:
             name: "timer"
-        
         SettingsScreen:
             name: "settings"
-            
-            
-<BottomNav@BoxLayout>:
-    size_hint_y: None
-    height: "50dp"
-    spacing: 10
-    padding: 20
-   
-    Button:
-        text: "To-Do"
-        on_press: app.root.ids.screen_manager.current = "todo"
-    
-    Button:
-        text: "Flash Cards"
-        on_press: app.root.ids.screen_manager.current = "flashCards"
-    
-    Button:
-        text: "Timer"
-        on_press: app.root.ids.screen_manager.current = "timer"
-    
-    Button:
-        text: "Settings"
-        on_press: app.root.ids.screen_manager.current = "settings"
+        
+    # Bottom Navigation Bar
+    MDBoxLayout:
+        id: bottom_nav
+        size_hint_y: None
+        height: dp(60)
+        pos_hint: {"x": 0, "y": 0}
+        spacing: dp(5)
+        padding: dp(10)
+        md_bg_color: 0.95, 0.95, 0.95, 1
+
+        MDRaisedButton:
+            text: "To-Do"
+            on_release: app.root.ids.screen_manager_root.current = "todo"
+
+        MDRaisedButton:
+            text: "Flash Cards"
+            on_release: app.root.ids.screen_manager_root.current = "flashCards"
+
+        MDRaisedButton:
+            text: "Timer"
+            on_release: app.root.ids.screen_manager_root.current = "timer"
+
+        MDRaisedButton:
+            text: "Settings"
+            on_release: app.root.ids.screen_manager_root.current = "settings"
 
 <ToDoScreen@Screen>:
-    BoxLayout:
+    MDBoxLayout:
         orientation: 'vertical'
-        Label: 
-            text: "User 1 To Do List"
-            height: dp(50)
+        spacing: dp(10)
+        padding: dp(10), dp(10), dp(10), dp(70) #left, top, right, bottom
+    
+        MDTopAppBar:
+            title: "ToDo List"
+            elevation: 15
         
-        ScrollView:
-            id: todo_list_scroll
-            BoxLayout:
+        ScrollView:    
+            MDList:
                 id: todo_items_container
-                orientation: 'vertical'
                 size_hint_y: None
-                heigth: self.minimum_height
+                height: self.minimum_height
         
-        TextInput:
+        MDTextField:
             id: new_task_input
             hint_text: "Add a new task..."
             size_hint_y: None
             height: dp(40)
         
-        Button:
+        MDRaisedButton:
             text: "Add Task"
             size_hint_y: None
             height: dp(40)
-            on_press: app.root.ids.screen_manager.get_screen('todo').addTask()
+            on_release: root.addTask() # root is the ToDo screen 
         
-        BottomNav:
-            
+                    
 <FlashCardsScreen@Screen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: 10
+        padding: 10, 10, 10, 90
         spacing: 8
 
         # list area (starts empty; Python will populate it in on_pre_enter)
@@ -97,8 +96,7 @@
                 text: 'Add card'
                 on_release: root.open_add_popup()
 
-        BottomNav:
-
+        
 # Generate a row per flash card in the file.
 <FlashCardRow@BoxLayout>:
     front: ''
@@ -113,19 +111,20 @@
         # Call the screen method (root is the FlashCardRow widget; root.parent... might not be the screen)
         on_release: app.root.ids.screen_manager.get_screen('flashCards').show_back_popup(root.front, root.back)
 
-<TimerScreen@Screen>:
-    BoxLayout:
+<TimerScreen@MDScreen>:
+    MDBoxLayout:
         orientation: 'vertical'
-        Label: 
+        MDLabel: 
             text: "This is the Timer Screen"
+            halign: "center"
         
-        BottomNav:
-        
-<SettingsScreen@Screen>:
-    BoxLayout:
+                
+<SettingsScreen@MDScreen>:
+    MDBoxLayout:
         orientation: 'vertical'
-        Label: 
+        MDLabel: 
             text: "This is the Settings Screen"
-        
-        BottomNav:
+            halign: "center"
+
+       
     

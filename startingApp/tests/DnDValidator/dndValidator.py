@@ -37,3 +37,4 @@ class DNDManager:
         else:
             self.dnd_on = False
             return False
+

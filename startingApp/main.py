@@ -6,10 +6,12 @@
     built and used throuought the screens. The
     script ends with the all important run statement.'''
 
-from kivy.app import App
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.label import Label
-from kivy.uix.floatlayout import FloatLayout #this imports the FloatLayout from study.kv
+
+from kivymd.app import MDApp
+from kivymd.uix.screenmanager import MDScreenManager
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.label import MDLabel
+from kivymd.uix.floatlayout import FloatLayout #this imports the FloatLayout from study.kv
 
 from screens.todo import ToDoScreen #ToDo screen is incomplete, but this is the import call for the todo screen
 from screens.flashCards import FlashCardsScreen #FlashCards screen is incomplete, but this is the import call for the flash cards screen
@@ -20,17 +22,17 @@ from screens.settings import SettingsScreen #to be activated when the Settings s
                                 #something other than 'study' because kivy likes the name to be the same as the 
 #Builder.load_file('study.kv')  #class name without the 'App' part
 
-class WindowManager(ScreenManager):
-    pass
+#class WindowManager(ScreenManager):
+#    pass
 
-class RootWidget(FloatLayout):
-    pass
+#class RootWidget(FloatLayout):
+#    pass
 
-class StudyApp(App):
+class StudyApp(MDApp):
     def build(self):
-        return RootWidget()
-       
-        sm = WindowManager() #building and naming the app's main manager
+        
+      
+        sm = MDScreenManager() #building and naming the app's main manager
         
         sm.add_widget(ToDoScreen(name = "todo")) #adds the ToDo screen widget
         sm.add_widget(FlashCardsScreen(name = "flashCards")) #adds the flashcards screen widget
@@ -39,7 +41,9 @@ class StudyApp(App):
 
         sm.current = "todo"
         
-        return sm
+        # returns root widget from study.kv
+        from kivy.factory import Factory
+        return Factory.RootWidget()
     
 if __name__ == "__main__":
     StudyApp().run()
