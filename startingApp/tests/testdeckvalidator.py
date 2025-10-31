@@ -1,5 +1,5 @@
 import unittest
-from sourcetext_validator import validate_sourcetext
+from deck_validator import validate_deck
 
 class TestDeckValidator(unittest.TestCase):
     def test_valid_deck(self):
