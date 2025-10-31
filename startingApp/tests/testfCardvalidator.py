@@ -1,5 +1,7 @@
 import unittest
-from fCard_validator import validate_fCard, validate_fCardAmount
+from startingApp.tests.fCard_validator import validate_fCard, validate_fCardAmount
+
+
 
 
 class TestFCardValidator(unittest.TestCase):
