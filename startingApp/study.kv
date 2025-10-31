@@ -58,17 +58,50 @@
                 size_hint_y: None
                 height: self.minimum_height
         
-        MDTextField:
-            id: new_task_input
-            hint_text: "Add a new task..."
+        # Expandable input box
+        MDBoxLayout:
+            id: input_box
+            orientation: 'vertical'
             size_hint_y: None
-            height: dp(40)
+            height: dp(60)
+            spacing: dp(5)
+            padding: dp(5)
+            
+            # Additional fields (hidden initially, opacity=0)
+            MDTextField:
+                id: task_header_input
+                hint_text: "Task Header"
+                size_hint_y: None
+                height: dp(40)
+                opacity: 0
+            
+            MDTextField:
+                id: task_description_input
+                hint_text: "Task Description"
+                size_hint_y: None
+                height: dp(40)
+                opacity: 0
+            
+            MDTextField:
+                id: task_date_input
+                hint_text: "Task Due Date (MM/DD/YYYY)"
+                size_hint_y: None
+                height: dp(40)
+                opacity: 0
+            
+            # Initial single-line input (at bottom, always visible initially)
+            MDTextField:
+                id: new_task_input
+                hint_text: "Add a new task..."
+                size_hint_y: None
+                height: dp(40)
+                on_focus: if self.focus: root.expand_input()
         
         MDRaisedButton:
             text: "Add Task"
             size_hint_y: None
             height: dp(40)
-            on_release: root.addTask() # root is the ToDo screen 
+            on_release: root.addTask()
         
                     
 <FlashCardsScreen@Screen>:
