@@ -26,21 +26,29 @@
         padding: dp(10)
         md_bg_color: 0.95, 0.95, 0.95, 1
 
-        MDRaisedButton:
-            text: "To-Do"
+        MDButton:
+            style: "elevated"
             on_release: app.root.ids.screen_manager_root.current = "todo"
+            MDButtonText:
+                text: "To-Do"
 
-        MDRaisedButton:
-            text: "Flash Cards"
+        MDButton:
+            style: "elevated"
             on_release: app.root.ids.screen_manager_root.current = "flashCards"
+            MDButtonText:
+                text: "Flash Cards"
 
-        MDRaisedButton:
-            text: "Timer"
+        MDButton:
+            style: "elevated"
             on_release: app.root.ids.screen_manager_root.current = "timer"
+            MDButtonText:
+                text: "Timer"
 
-        MDRaisedButton:
-            text: "Settings"
+        MDButton:
+            style: "elevated"
             on_release: app.root.ids.screen_manager_root.current = "settings"
+            MDButtonText:
+                text: "Settings"
 
 <ToDoScreen@Screen>:
     MDBoxLayout:
@@ -97,11 +105,13 @@
                 height: dp(40)
                 on_focus: if self.focus: root.expand_input()
         
-        MDRaisedButton:
-            text: "Add Task"
+        MDButton:
+            style: "elevated"
             size_hint_y: None
             height: dp(40)
             on_release: root.addTask()
+            MDButtonText:
+                text: "Add Task"
         
                     
 <FlashCardsScreen@Screen>:
@@ -125,11 +135,12 @@
         BoxLayout:
             size_hint_y: None
             height: dp(48)
-            Button:
-                text: 'Add card'
+            MDButton:
+                style: "elevated"
                 on_release: root.open_add_popup()
+                MDButtonText:
+                    text: "Add card"
 
-        
 # Generate a row per flash card in the file.
 <FlashCardRow@BoxLayout>:
     front: ''
@@ -137,12 +148,14 @@
     padding: 8
     Label:
         text: root.front
-    Button:
-        text: 'Flip'
+    MDButton:
+        style: "elevated"
         size_hint_x: None
         width: dp(72)
         # Call the screen method (root is the FlashCardRow widget; root.parent... might not be the screen)
         on_release: app.root.ids.screen_manager.get_screen('flashCards').show_back_popup(root.front, root.back)
+        MDButtonText:
+            text: "Flip"
 
 <TimerScreen@MDScreen>:
     MDBoxLayout:

@@ -33,8 +33,8 @@ class FlashCardsScreen(Screen):
         content.add_widget(btn_row)
 
         self._popup = Popup(title='Add Flashcard', content=content, size_hint=(0.9, None), height=300, auto_dismiss=False)
-        confirm.bind(on_release=lambda *_: self.confirm_add())
-        cancel.bind(on_release=lambda *_: self.cancel_add())
+        confirm.bind(on_release=lambda *_: self.confirm_add()) #pyright: ignore
+        cancel.bind(on_release=lambda *_: self.cancel_add()) #pyright: ignore
         self._popup.open()
 
     def confirm_add(self):
@@ -79,5 +79,5 @@ class FlashCardsScreen(Screen):
         content.add_widget(close_btn)
 
         popup = Popup(title=front_text, content=content, size_hint=(0.8, 0.45), auto_dismiss=False)
-        close_btn.bind(on_release=lambda *_: popup.dismiss())
+        close_btn.bind(on_release=lambda *_: popup.dismiss())# pyright: ignore
         popup.open()
