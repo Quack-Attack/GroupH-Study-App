@@ -16,7 +16,12 @@ Many students struggle with studying and the complexity of juggling multiple too
 ## Getting Started
 The easiest way to get started is to:
 1. **Download the app**.
-(LIST THE INSTRUCTIONS HERE!!!!!!!!)
+    1. Press the green button near the top of our page with " <> Code " and a down arrow on it. 
+    2. Copy the URL by pressing the overlaid squares at the end of the hyperlink that comes up, or copy the one here: https://github.com/Quack-Attack/GroupH-Study-App.git (last updated 11/11/2025)
+    3. Navigate to your desired directory and open your git-friendly terminal
+    4. Initialize and clone the repo
+    5. pip install both kivy and kivy md
+    6. run the code by typing python startingApp/main.py into your terminal
 2. **Try it out** — test features like the Pomodoro timer, flashcards, and AI study assistant.
 3. **Report any issues or feedback** send your issues and feedback to our GitHub contact page.
 
