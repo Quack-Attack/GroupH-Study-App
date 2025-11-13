@@ -160,9 +160,39 @@
 <TimerScreen@MDScreen>:
     MDBoxLayout:
         orientation: 'vertical'
+        spacing: dp(10)
+        padding: dp(10), dp(10), dp(10), dp(70)
+
         MDLabel: 
-            text: "This is the Timer Screen"
+            id: timer_label
+            text: "00:00"
             halign: "center"
+
+        MDBoxLayout:
+            orientation: "horizontal"
+            spacing: dp(20)
+            size_hint_y: None
+            size_hint_x: None
+            width: self.minimum_width
+            height: dp(50)
+            halign: "center"
+            pos_hint: {"center_x": 0.5}
+
+            MDButton: 
+                style: "elevated"
+                height: dp(40)
+                size_hint_x: None
+                on_release: root.start_pomodoro()
+                MDButtonText:
+                    text: "Start"
+
+            MDButton: 
+                style: "elevated"
+                height: dp(40)
+                size_hint_x: None
+                on_release: root.stop_pomodoro()
+                MDButtonText:
+                    text: "Stop" 
         
                 
 <SettingsScreen@MDScreen>:

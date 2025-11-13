@@ -37,7 +37,7 @@ class StudyApp(MDApp):
         
         sm.add_widget(ToDoScreen(name = "todo")) #adds the ToDo screen widget
         sm.add_widget(FlashCardsScreen(name = "flashCards")) #adds the flashcards screen widget
-        sm.add_widget(TimerScreen(name = "timer")) #adds the timer screen widget
+        sm.add_widget(TimerScreen(name = "time  r")) #adds the timer screen widget
         sm.add_widget(SettingsScreen(name = "settings")) #adds the settings screen widget
 
         sm.current = "todo"
