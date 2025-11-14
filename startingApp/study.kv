@@ -163,12 +163,14 @@
         spacing: dp(10)
         padding: dp(10), dp(10), dp(10), dp(70)
 
+        # Timer display
         MDLabel: 
-            id: timer_label
+            id: timer_display
             text: "00:00"
             halign: "center"
 
         MDBoxLayout:
+            id: buttons
             orientation: "horizontal"
             spacing: dp(20)
             size_hint_y: None
@@ -178,6 +180,7 @@
             halign: "center"
             pos_hint: {"center_x": 0.5}
 
+            # Start button
             MDButton: 
                 style: "elevated"
                 height: dp(40)
@@ -186,13 +189,95 @@
                 MDButtonText:
                     text: "Start"
 
+            # Stop button
             MDButton: 
                 style: "elevated"
                 height: dp(40)
                 size_hint_x: None
                 on_release: root.stop_pomodoro()
                 MDButtonText:
-                    text: "Stop" 
+                    text: "Stop"
+
+            # Reset button
+            MDButton: 
+                style: "elevated"
+                height: dp(40)
+                size_hint_x: None
+                on_release: root.reset_pomodoro()
+                MDButtonText:
+                    text: "Reset"
+
+        # Inputs
+        MDBoxLayout: 
+            id: timer_input_labels
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(60)
+            spacing: dp(5)
+            padding: dp(5)
+
+            MDLabel:
+                text: "Work Minutes"
+                halign: "left"
+                valign: "bottom"
+
+            MDLabel:
+                text: "Short Break Minutes"
+                halign: "left"
+                valign: "bottom"
+
+            MDLabel:
+                text: "Long Break Minutes"
+                halign: "left"
+                valign: "bottom"
+                
+            MDLabel:
+                text: "Sessions"
+                halign: "left"
+                valign: "bottom"
+
+        MDBoxLayout: 
+            id: timer_input
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(5)
+            spacing: dp(5)
+            padding: dp(5)  
+        
+            MDTextField:
+                id: work_minutes_input
+                hint_text: "How many minutes do you want to work per session?"
+                size_hint_y: None
+                mode: "filled"
+                text: "25"
+                fill_color: 0.95, 0.95, 0.95, 1
+                height: dp(30)
+
+            MDTextField:
+                id: short_break_minutes_input
+                hint_text: "How many minutes for a short break?"
+                size_hint_y: None
+                mode: "filled"
+                text: "5"
+                fill_color: 0.95, 0.95, 0.95, 1
+                height: dp(30)
+            MDTextField:
+                id: long_break_minutes_input
+                hint_text: "How many minutes for a long break?"
+                size_hint_y: None
+                mode: "filled"
+                text: "15"
+                fill_color: 0.95, 0.95, 0.95, 1
+                height: dp(30)
+
+            MDTextField:    
+                id: sessions_input
+                hint_text: "How many work sessions would you like?"
+                size_hint_y: None
+                mode: "filled"
+                text: "4"
+                fill_color: 0.95, 0.95, 0.95, 1
+                height: dp(30)
         
                 
 <SettingsScreen@MDScreen>:

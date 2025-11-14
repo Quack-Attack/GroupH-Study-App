@@ -16,7 +16,7 @@ from kivymd.uix.floatlayout import FloatLayout #this imports the FloatLayout fro
 
 from screens.todo import ToDoScreen #ToDo screen is incomplete, but this is the import call for the todo screen
 from screens.flashCards import FlashCardsScreen #FlashCards screen is incomplete, but this is the import call for the flash cards screen
-from screens.timer import TimerScreen #Timer screen is incomplete, but this is the import call for the flash cards screen
+from screens.timer import TimerScreen #Timer screen is incomplete, but this is the import call for the timer screen
 from screens.settings import SettingsScreen #to be activated when the Settings screen is online
 
 #from kivy.lang import Builder #this line and the one below would be needed if the .kv file for main were named
