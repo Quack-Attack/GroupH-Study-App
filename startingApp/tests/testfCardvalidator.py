@@ -1,8 +1,5 @@
 import unittest
-from startingApp.tests.fCard_validator import validate_fCard, validate_fCardAmount
-
-
-
+from startingApp.tests.fCard_validator import validate_fCard, validate_fCardAmount # pyright: ignore
 
 class TestFCardValidator(unittest.TestCase):
 

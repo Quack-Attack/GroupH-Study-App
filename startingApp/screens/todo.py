@@ -27,12 +27,14 @@ class ToDoScreen(MDScreen):
         
     def addTask(self):
         """Adds a task with header, description, and due date"""
-        
+
         # Get text from all inputs
-        header = self.ids.task_header_input.text.strip()
+        header = self.ids.field1.text.strip()
         description = self.ids.task_description_input.text.strip()
         due_date = self.ids.task_date_input.text.strip()
         
+        print("\n\nmade it!\n""header""\n")
+
         if header:
             # Add the task as a custom widget
             from kivymd.uix.boxlayout import MDBoxLayout
