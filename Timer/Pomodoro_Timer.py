@@ -25,14 +25,16 @@ def countdown(seconds):                                                         
 
 if __name__ == "__main__":
     try:
-        sessions = int(input("How many work sessions would you like? \n"))              #asks amount of sessions
+        work_minutes = int(input("How many minutes do you want to work per session? ")) #ask for custom durations
+        short_break = int(input("How many minutes for a short break? "))
+        long_break = int(input("How many minutes for a long break? "))
+        sessions = int(input("How many work sessions would you like? "))
     except ValueError:
-        print("Invalid input, defaulting to 4 sessions.")                               #if invalid, sets to 4 by default
+        print("Invalid input, defaulting to: work=25, short=5, long=15, sessions=4.")   #default values
+        work_minutes = 25
+        short_break = 5
+        long_break = 15
         sessions = 4
+        
     print("\nPomodoro Timer Started!")                                                  #states the timer has started
     pomodoro_timer(1,1,2,sessions)                                                      #starts timer w/ default testing values 
-
-    #HI terrry!
-
-    # Nolen was here
-    #Hi terry hello

@@ -3,7 +3,7 @@
 
 #from kivy.app import App
 from kivy.uix.label import Label
-from kivy.uix.screenmanager import Screen #Wworks with screenmanager
+from kivy.uix.screenmanager import Screen #Works with screenmanager
 from kivy.uix.button import Button #this imports the Button from timer.kv
 
 
