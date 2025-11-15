@@ -149,7 +149,7 @@
             height: dp(48)
             MDButton:
                 style: "elevated"
-                on_release: root.open_add_popup()
+                on_release: root.open_add_dialog()
                 MDButtonText:
                     text: "Add card"
 
@@ -165,7 +165,7 @@
         size_hint_x: None
         width: dp(72)
         # Call the screen method (root is the FlashCardRow widget; root.parent... might not be the screen)
-        on_release: app.root.ids.screen_manager.get_screen('flashCards').show_back_popup(root.front, root.back)
+        on_release: app.flashcards_screen.show_back_dialog(root.front, root.back)
         MDButtonText:
             text: "Flip"
 
