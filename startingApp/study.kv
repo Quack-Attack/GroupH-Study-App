@@ -122,52 +122,110 @@
             MDButtonText:
                 text: "Add Task"
                 #on_press: todolist.addTask()
+       
+<FlashCardsScreen>:
+    name: "flashCards"
 
-        
-        
-                    
-<FlashCardsScreen@Screen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 10, 10, 10, 90
-        spacing: 8
+    MDBoxLayout:
+        orientation: "vertical"
 
-        # list area (starts empty; Python will populate it in on_pre_enter)
-        RecycleView:
-            id: rv
-            viewclass: 'FlashCardRow'
-            data: []   
-            RecycleBoxLayout:
-                default_size: None, dp(56)
-                default_size_hint: 1, None
-                size_hint_y: None
-                height: self.minimum_height
-                orientation: 'vertical'
-
-        BoxLayout:
+        # --- Top-left add button locked to upper-right corner ---
+        AnchorLayout:
+            anchor_x: "right"
+            anchor_y: "top"
             size_hint_y: None
-            height: dp(48)
+            height: dp(64)
+            padding: dp(8)
+
             MDButton:
-                style: "elevated"
+                size_hint: None, None
+                size: dp(130), dp(40)
                 on_release: root.open_add_dialog()
                 MDButtonText:
-                    text: "Add card"
+                    text: "+ Add Card"
 
-# Generate a row per flash card in the file.
-<FlashCardRow@BoxLayout>:
-    front: ''
-    back: ''
-    padding: 8
-    Label:
-        text: root.front
-    MDButton:
-        style: "elevated"
-        size_hint_x: None
-        width: dp(72)
-        # Call the screen method (root is the FlashCardRow widget; root.parent... might not be the screen)
-        on_release: app.flashcards_screen.show_back_dialog(root.front, root.back)
-        MDButtonText:
-            text: "Flip"
+        # small padding so the top of the flashcard sits just beneath the button
+        Widget:
+            size_hint_y: None
+            height: dp(8)
+
+        # --- Main area: arrows + card ---
+        BoxLayout:
+            size_hint_y: 1
+
+            # Left column: left arrow, anchored to right
+            AnchorLayout:
+                anchor_x: "right"
+                anchor_y: "center"
+                size_hint_x: None
+                width: "24dp"
+
+                MDIconButton:
+                    icon: "chevron-left"
+                    size_hint: None, None
+                    user_font_size: "48dp"
+                    size: "24dp", "24dp"
+                    on_release: root.prev_card()
+
+            # Center column: anchored card + index (index locked directly underneath)
+            AnchorLayout:
+                anchor_x: "center"
+                anchor_y: "center"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint: None, None
+                    # width: follow available center column but max to a percent of window
+                    width: min(self.parent.width * 0.95, root.width * 0.85)
+                    # height: don't exceed 80% of the screen; otherwise be card + index height
+                    height: min(root.height * 0.8, (self.width / 1.6667) + dp(32))
+
+                    MDCard:
+                        id: flashcard
+                        elevation: 1
+                        radius: 5
+                        padding: "12dp"
+                        ripple_behavior: True
+                        on_release: root.flip_card()
+
+                        # Keep 5:3 aspect ratio but never exceed available wrapper space
+                        size_hint: None, None
+                        width: self.parent.width
+                        height: min(self.width / 1.6667, self.parent.height - index_label.height)
+
+                        MDLabel:
+                            id: flashcard_text
+                            text: root.current_text
+                            halign: "center"
+                            valign: "center"
+                            theme_text_color: "Primary"
+                            text_size: self.width * 0.9, None
+
+                    MDLabel:
+                        id: index_label
+                        text: f"{root.current_index + 1}/{len(root.cards)}" if root.cards else ""
+                        halign: "center"
+                        theme_text_color: "Secondary"
+                        size_hint_y: None
+                        height: dp(32)
+
+            # Right column: right arrow, anchored to left
+            AnchorLayout:
+                anchor_x: "left"
+                anchor_y: "center"
+                size_hint_x: None
+                width: "24dp"
+
+                MDIconButton:
+                    icon: "chevron-right"
+                    size_hint: None, None
+                    user_font_size: "36dp"
+                    size: "24dp", "24dp"
+                    on_release: root.next_card()
+
+        # Bottom spacer
+        Widget:
+            size_hint_y: 0.05
 
 <TimerScreen@MDScreen>:
     MDBoxLayout:
@@ -299,5 +357,5 @@
             text: "This is the Settings Screen"
             halign: "center"
 
-       
-    
+
+

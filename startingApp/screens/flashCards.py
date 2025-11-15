@@ -1,164 +1,157 @@
-from kivy.uix.screenmanager import Screen
-from kivy.properties import ListProperty
+from kivymd.uix.screen import MDScreen
+from kivy.properties import ListProperty, NumericProperty, BooleanProperty, StringProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.app import App
 
-# KivyMD imports
-try:
-    from kivymd.uix.dialog import MDDialog
-    from kivymd.uix.button import MDFlatButton
-    from kivymd.uix.textfield import MDTextField
-    from kivymd.uix.label import MDLabel
-except Exception:
-    # If KivyMD not available for any reason, fall back to plain Kivy widgets.
-    MDDialog = None
-    MDFlatButton = None
-    MDTextField = None
-    from kivy.uix.label import Label as MDLabel  # fallback to plain label
+from kivymd.uix.dialog import (
+    MDDialog,
+    MDDialogHeadlineText,
+    MDDialogContentContainer,
+    MDDialogButtonContainer,
+)
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.widget import MDWidget
+from kivy.uix.widget import Widget
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.textfield import MDTextField
+from kivymd.uix.label import MDLabel
 
-class _AddCardContent(BoxLayout):
-    """Small helper class used as the MDDialog content_cls.
-    This has two MDTextField children accessible as front_field/back_field.
-    """
-    def __init__(self, **kwargs):
-        super().__init__(orientation="vertical", spacing=10, padding=8, **kwargs)
-        # Use MDTextField if available, otherwise Kivy TextInput
-        if MDTextField is not None:
-            self.front_field = MDTextField(hint_text="Front (question)", required=False)
-            self.back_field = MDTextField(hint_text="Back (answer)", required=False)
-        else:
-            from kivy.uix.textinput import TextInput
-            self.front_field = TextInput(hint_text="Front (question)", multiline=False)
-            self.back_field = TextInput(hint_text="Back (answer)", multiline=False)
-        self.add_widget(self.front_field)
-        self.add_widget(self.back_field)
 
-class FlashCardsScreen(Screen):
+class FlashCardsScreen(MDScreen):
     cards = ListProperty([])
+    current_index = NumericProperty(0)
+    showing_back = BooleanProperty(False)
+    current_text = StringProperty("No cards yet. Add one!")
 
+    # ----------------------------
+    # Screen Lifecycle
+    # ----------------------------
     def on_pre_enter(self, *args):
-        """Populate RV and register this screen on the App for easy access from KV."""
-        # register self on the running app so KV can call app.flashcards_screen
-        try:
-            App.get_running_app().flashcards_screen = self
-        except Exception:
-            pass
+        App.get_running_app().flashcards_screen = self
 
-        rv = self.ids.get("rv")
-        if rv is not None:
-            rv.data = [{"front": c.get("front", ""), "back": c.get("back", "")} for c in self.cards]
+        if self.current_index >= len(self.cards):
+            self.current_index = max(0, len(self.cards) - 1)
 
-    # -------------------------
-    # Add-card dialog workflow
-    # -------------------------
-    def open_add_dialog(self):
-        """Open a material dialog to add a new flashcard."""
-        # If MDDialog is available, create the content_cls; otherwise fallback to a simple dialog
-        self._add_content = _AddCardContent()
-        # Buttons: Cancel and Confirm
-        if MDFlatButton is not None and MDDialog is not None:
-            cancel_btn = MDFlatButton(text="CANCEL", on_release=self._on_add_cancel)
-            confirm_btn = MDFlatButton(text="CONFIRM", on_release=self._on_add_confirm)
-            self._add_dialog = MDDialog(
-                title="Add Flashcard",
-                type="custom",
-                content_cls=self._add_content,
-                buttons=[cancel_btn, confirm_btn],
-                auto_dismiss=False,
-            )
-            self._add_dialog.open()
+        self.showing_back = False
+        self._update_current_text()
+
+    # ----------------------------
+    # Card Updating
+    # ----------------------------
+    def _update_current_text(self):
+        if not self.cards:
+            self.current_text = "No cards yet. Use + to add a flashcard."
+            return
+
+        idx = max(0, min(self.current_index, len(self.cards) - 1))
+        card = self.cards[idx]
+
+        if self.showing_back:
+            text = card.get("back") or "(no back text)"
         else:
-            # Fallback: use a plain popup-like MDDialog substitute if possible; emulate behavior
-            from kivy.uix.popup import Popup
-            from kivy.uix.button import Button
-            content = BoxLayout(orientation="vertical", spacing=10, padding=10)
-            content.add_widget(self._add_content)
-            btn_row = BoxLayout(size_hint_y=None, height=40, spacing=8)
-            btn_cancel = Button(text="Cancel")
-            btn_confirm = Button(text="Confirm")
-            btn_cancel.bind(on_release=lambda *_: self._on_add_cancel())
-            btn_confirm.bind(on_release=lambda *_: self._on_add_confirm())
-            btn_row.add_widget(btn_cancel)
-            btn_row.add_widget(btn_confirm)
-            content.add_widget(btn_row)
-            self._add_dialog = Popup(title="Add Flashcard", content=content, size_hint=(0.9, None), height=320, auto_dismiss=False)
-            self._add_dialog.open()
+            text = card.get("front") or "(no front text)"
 
-    def _on_add_cancel(self, *args):
-        """Cancel handler for add-dialog."""
-        if getattr(self, "_add_dialog", None) is not None:
+        self.current_text = text
+
+    def flip_card(self):
+        if not self.cards:
+            return
+        self.showing_back = not self.showing_back
+        self._update_current_text()
+
+    def next_card(self):
+        if not self.cards:
+            return
+        self.current_index = (self.current_index + 1) % len(self.cards)
+        self.showing_back = False
+        self._update_current_text()
+
+    def prev_card(self):
+        if not self.cards:
+            return
+        self.current_index = (self.current_index - 1) % len(self.cards)
+        self.showing_back = False
+        self._update_current_text()
+
+    def on_cards(self, *args):
+        if self.current_index >= len(self.cards):
+            self.current_index = max(0, len(self.cards) - 1)
+        self.showing_back = False
+        self._update_current_text()
+
+    # ----------------------------
+    # Add Flashcard Dialog
+    # ----------------------------
+    def open_add_dialog(self):
+        """
+        Build MDDialog using the 1.2.x API break format:
+        MDDialog(
+            MDDialogHeadlineText(...),
+            MDDialogContentContainer(...),
+            MDDialogButtonContainer(...),
+        )
+        """
+        # Content container for text fields
+        content = MDDialogContentContainer(orientation="vertical", spacing="10dp", padding="12dp")
+
+        # Create fields and add to content
+        self.front_field = MDTextField(hint_text="Front (question)", size_hint_y=None, height="48dp")
+        self.back_field = MDTextField(hint_text="Back (answer)", size_hint_y=None, height="48dp")
+        content.add_widget(self.front_field)
+        content.add_widget(self.back_field)
+
+        # Buttons: use a Widget() spacer so buttons align to the right (as shown in docs)
+        btn_container = MDDialogButtonContainer(
+            Widget(),
+            MDButton(MDButtonText(text="CANCEL"), style="text", on_release=self._close_dialog),
+            MDButton(MDButtonText(text="ADD"), style="filled", on_release=self._confirm_add),
+            spacing="8dp",
+        )
+
+        # Headline (title)
+        headline = MDDialogHeadlineText(text="Add Flashcard", halign="left")
+
+        # Build dialog (positional children)
+        self._add_dialog = MDDialog(headline, content, btn_container, scrim_color=(0, 0, 0, 0.5))
+        self._add_dialog.open()
+
+
+    def _close_dialog(self, *args):
+        """Close the dialog (callback receives the button instance)."""
+        if getattr(self, "_add_dialog", None):
             try:
                 self._add_dialog.dismiss()
             except Exception:
                 pass
-        # clear fields for next time
-        if getattr(self, "_add_content", None) is not None:
-            try:
-                self._add_content.front_field.text = ""
-                self._add_content.back_field.text = ""
-            except Exception:
-                pass
 
-    def _on_add_confirm(self, *args):
-        """Confirm handler: validate and add card."""
-        front = ""
-        back = ""
-        if getattr(self, "_add_content", None) is not None:
-            front = (getattr(self._add_content.front_field, "text", "") or "").strip()
-            back = (getattr(self._add_content.back_field, "text", "") or "").strip()
+
+    def _confirm_add(self, *args):
+        """
+        Callback for ADD button. Accepts the event arg(s) that Kivy passes.
+        Validates and appends the card, then closes the dialog.
+        """
+        front = (getattr(self, "front_field", None).text or "").strip()
+        back = (getattr(self, "back_field", None).text or "").strip()
 
         if not front:
-            # focus front field so user fills it
+            # mark error on the field (MDTextField has .error property)
             try:
-                self._add_content.front_field.focus = True
+                self.front_field.error = True
             except Exception:
                 pass
             return
 
-        # append to cards and update rv immediately
+        # add card
         self.cards.append({"front": front, "back": back})
-        rv = self.ids.get("rv")
-        if rv is not None:
-            rv.data.append({"front": front, "back": back})
 
-        # dismiss dialog & clear fields
-        if getattr(self, "_add_dialog", None) is not None:
-            try:
+        if len(self.cards) == 1:
+            self.current_index = 0
+            self.showing_back = False
+
+        # update display and close dialog
+        self._update_current_text()
+        try:
+            if getattr(self, "_add_dialog", None):
                 self._add_dialog.dismiss()
-            except Exception:
-                pass
-        if getattr(self, "_add_content", None) is not None:
-            try:
-                self._add_content.front_field.text = ""
-                self._add_content.back_field.text = ""
-            except Exception:
-                pass
-
-    # -------------------------
-    # Show back popup (flip)
-    # -------------------------
-    def show_back_dialog(self, front, back):
-        """Show the back of a flashcard using an MDDialog (or fallback)."""
-        front_text = str(front) if front is not None else "Flashcard"
-        back_text = (str(back).strip() if back is not None else "") or "(no back text)"
-
-        if MDDialog is not None:
-            # a simple dialog with a single close button
-            close_btn = MDFlatButton(text="CLOSE", on_release=lambda *_: self._back_dialog.dismiss())
-            # content_cls expects a widget; use a BoxLayout with MDLabel
-            content = BoxLayout(orientation="vertical", padding=12)
-            content.add_widget(MDLabel(text=back_text))
-            self._back_dialog = MDDialog(title=front_text, type="custom", content_cls=content, buttons=[close_btn], auto_dismiss=False)
-            self._back_dialog.open()
-        else:
-            # fallback to Popup
-            from kivy.uix.popup import Popup
-            from kivy.uix.label import Label
-            from kivy.uix.button import Button
-            content = BoxLayout(orientation="vertical", padding=12, spacing=10)
-            content.add_widget(Label(text=back_text))
-            close_btn = Button(text="Close", size_hint_y=None, height=40)
-            content.add_widget(close_btn)
-            dlg = Popup(title=front_text, content=content, size_hint=(0.8, 0.45), auto_dismiss=False)
-            close_btn.bind(on_release=lambda *_: dlg.dismiss())
-            dlg.open()
+        except Exception:
+            pass
