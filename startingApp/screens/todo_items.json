@@ -1,12 +1,17 @@
 [
   {
-    "header": "zbf",
-    "description": "zbz",
-    "due_date": "zb"
+    "header": "Fix task input",
+    "description": "the one at the bottom. Make it a button?",
+    "due_date": "today."
   },
   {
-    "header": "z",
-    "description": "bb",
-    "due_date": "zb"
+    "header": "Fix Due Date",
+    "description": "Set up checks for DD/MM/YYYY formatting",
+    "due_date": "12/05/2025"
+  },
+  {
+    "header": "Fix Due Date Pt. 2",
+    "description": "Fix shutdown when format checks for due date fail",
+    "due_date": "12/01/2025"
   }
 ]
