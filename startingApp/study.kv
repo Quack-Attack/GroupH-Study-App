@@ -50,17 +50,21 @@
             MDButtonText:
                 text: "Settings"
 
-<ToDoScreen@Screen>:
+<ToDoScreen>:
     MDBoxLayout:
         orientation: 'vertical'
         spacing: dp(10)
         padding: dp(10), dp(10), dp(10), dp(70) #left, top, right, bottom            
         
-        ScrollView:    
-            MDList:
+        ScrollView:
+            MDBoxLayout:
                 id: todo_items_container
+                orientation: "vertical"
                 size_hint_y: None
                 height: self.minimum_height
+                padding: dp(10)
+                spacing: dp(10)
+
         
         # Expandable input box
         MDBoxLayout:
@@ -74,7 +78,7 @@
             # Additional fields (hidden initially, opacity=0)
             MDTextField:
                 fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
-                id: field1
+                id: task_header_input
                 mode: "outlined"
 
                 MDTextFieldHintText:
@@ -83,7 +87,7 @@
             
             MDTextField: #This one temporarily holds the text
                 fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
-                id: field2
+                id: task_description_input
                 mode: "outlined"
 
                 MDTextFieldHintText:
@@ -92,19 +96,23 @@
             
             MDTextField:
                 fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
-                id: field3
+                id: task_date_input
                 mode: "outlined"
 
                 MDTextFieldHintText:
                     text: "Input Task Due Date (DD/MM/YYYY)"
             
             # Initial single-line input (at bottom, always visible initially)
-            #MDTextField:
-                #id: new_task_input
-                #hint_text: "Add a new task..."
-                #size_hint_y: None
-               # height: dp(40)
-                #on_focus: if self.focus: root.expand_input()
+            MDTextField:
+                id: new_task_input
+                mode: "outlined"
+                fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
+                size_hint_y: None
+                height: dp(40)
+                on_focus: if self.focus: root.expand_input()
+
+                MDTextFieldHintText:
+                    text: "Add a new task..."
         
         MDButton:
             style: "elevated"
@@ -113,7 +121,9 @@
             on_release: root.addTask()
             MDButtonText:
                 text: "Add Task"
-                #on_press: todolist.toDoItem()
+                #on_press: todolist.addTask()
+
+        
         
                     
 <FlashCardsScreen@Screen>:
