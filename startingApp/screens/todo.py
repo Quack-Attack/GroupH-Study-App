@@ -1,195 +1,228 @@
-#This code is written to support the todo screen of the app.
-#It works with the todo.kv file
+# todo.py
+# Supports the To-Do screen defined in your todo.kv
 
 from kivymd.uix.screen import MDScreen
 from kivy.animation import Animation
 from kivy.metrics import dp
+from kivy.clock import Clock
 
-# Adds JSON Save/Load functions
 import json
 from pathlib import Path
+from functools import partial
 
-DATA_FILE = Path("todo_items.json")
+# Save file next to this python file (safer than CWD)
+DATA_FILE = Path(__file__).parent / "todo_items.json"
+
 
 def load_tasks():
-    if DATA_FILE.exists():
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
-    return []  # No saved tasks yet
+    """Load JSON tasks, return list on success or empty list on error."""
+    if not DATA_FILE.exists():
+        return []
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            if isinstance(data, list):
+                return data
+    except Exception as e:
+        # If the file is corrupted or unreadable, warn and return empty list.
+        print(f"Warning: couldn't load tasks ({e}). Starting with empty list.")
+    return []
+
 
 def save_tasks(task_list):
-    with open(DATA_FILE, "w") as f:
-        json.dump(task_list, f)
+    """Save list of tasks to JSON (pretty-printed)."""
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(task_list, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"Error saving tasks: {e}")
 
 
 class ToDoScreen(MDScreen):
-  
     def on_kv_post(self, base_widget):
-        """Load saved tasks when screen is ready"""
+        """
+        Called after kv rules are applied and ids exist.
+        Load tasks and set initial UI visibility for input fields.
+        """
+        # Ensure UI changes happen after anything else finishes
+        Clock.schedule_once(self._post_kv_setup, 0)
+
+    def _post_kv_setup(self, dt):
+        # Load saved tasks
         self.task_list = load_tasks()
+
+        # Ensure input fields exist in kv (defensive)
+        try:
+            # Start with compact state: show single-line new_task_input only
+            self.ids.task_header_input.opacity = 0
+            self.ids.task_header_input.disabled = True
+
+            self.ids.task_description_input.opacity = 0
+            self.ids.task_description_input.disabled = True
+
+            self.ids.task_date_input.opacity = 0
+            self.ids.task_date_input.disabled = True
+
+            self.ids.new_task_input.opacity = 1
+            self.ids.new_task_input.disabled = False
+        except Exception as e:
+            print("Warning: input fields not found in kv:", e)
+
+        # Render any loaded tasks
         self.render_tasks()
 
     def expand_input(self):
         """Expands the input section to show all task fields"""
         input_box = self.ids.input_box
-        
+
         # Hide the initial "Add a new task..." field
         self.ids.new_task_input.opacity = 0
         self.ids.new_task_input.disabled = True
-        
+
         # Animate height expansion
-        anim = Animation(height=dp(200), duration=0.3)
+        anim = Animation(height=dp(200), duration=0.18)
         anim.start(input_box)
-        
-        # Show the additional fields
-        self.ids.task_header_input.opacity = 1
-        self.ids.task_description_input.opacity = 1
-        self.ids.task_date_input.opacity = 1
 
-    def storeTask(self):
-        """Stores each task with header, description, and due date"""
+        # Show and enable the additional fields
+        for idn in ("task_header_input", "task_description_input", "task_date_input"):
+            try:
+                self.ids[idn].opacity = 1
+                self.ids[idn].disabled = False
+            except Exception:
+                pass
 
-        # Get text from all inputs
-        header = self.ids.task_header_input.text.strip()
-        description = self.ids.task_description_input.text.strip()
-        due_date = self.ids.task_date_input.text.strip()
+    def collapse_input(self):
+        """Collapses the input section back to minimal size"""
+        input_box = self.ids.input_box
 
-        # Save to internal list
-        task_data = {
-            "header": header,
-            "description": description,
-            "due_date": due_date
-        }
+        # Hide additional fields and disable them
+        for idn in ("task_header_input", "task_description_input", "task_date_input"):
+            try:
+                self.ids[idn].opacity = 0
+                self.ids[idn].disabled = True
+            except Exception:
+                pass
 
-        self.task_list.append(task_data)
+        # Show the initial "Add a new task..." field again
+        try:
+            self.ids.new_task_input.opacity = 1
+            self.ids.new_task_input.disabled = False
+        except Exception:
+            pass
+
+        # Animate height collapse
+        anim = Animation(height=dp(60), duration=0.18)
+        anim.start(input_box)
+
+    # --- Unified add + save ---
+    def addTask(self):
+        """
+        Adds a task (both to the UI and saved JSON).
+        This name matches your KV call: on_release: root.addTask()
+        """
+        # Defensive: ensure attributes exist
+        header = ""
+        description = ""
+        due_date = ""
+        try:
+            header = self.ids.task_header_input.text.strip()
+            description = self.ids.task_description_input.text.strip()
+            due_date = self.ids.task_date_input.text.strip()
+        except Exception:
+            print("Input fields missing or not ready.")
+            return
+
+        if not header:
+            # Do not add blank-header tasks
+            print("No header entered")
+            return
+
+        # Build task dictionary and append
+        task = {"header": header, "description": description, "due_date": due_date}
+        if not hasattr(self, "task_list"):
+            self.task_list = load_tasks()
+        self.task_list.append(task)
+
+        # Persist
         save_tasks(self.task_list)
 
-         # Re-render UI
+        # Refresh UI
         self.render_tasks()
 
-    def addTask(self):
-        """Adds a task with header, description, and due date"""
-        
-        # Get text from all inputs
-        header = self.ids.task_header_input.text.strip()
-        description = self.ids.task_description_input.text.strip()
-        due_date = self.ids.task_date_input.text.strip()
-        
-        if header:
-            # Add the task as a custom widget
-            from kivymd.uix.boxlayout import MDBoxLayout
-            from kivymd.uix.label import MDLabel
-            
-            task_row = MDBoxLayout(
-                orientation='horizontal',
-                size_hint_y=None,
-                height=dp(50),
-                padding=[dp(10), dp(5)],
-                spacing=dp(10)
-            )
-            
-            # Task Header (left side)
-            header_label = MDLabel(
-                text=header,
-                size_hint_x=0.3,
-                bold=True
-            )
-            
-            # Task Description (middle)
-            desc_label = MDLabel(
-                text=description,
-                size_hint_x=0.5
-            )
-            
-            # Due Date (right side)
-            date_label = MDLabel(
-                text=due_date,
-                size_hint_x=0.2,
-                halign='right'
-            )
-            
-            task_row.add_widget(header_label)
-            task_row.add_widget(desc_label)
-            task_row.add_widget(date_label)
-            
-            self.ids.todo_items_container.add_widget(task_row)
-            
-            # Clear all inputs
+        # Clear inputs
+        try:
             self.ids.task_header_input.text = ""
             self.ids.task_description_input.text = ""
             self.ids.task_date_input.text = ""
-            
-            # Collapse the input box back
-            self.collapse_input()
-        
-        else:
-            print("No header entered")
-    
+        except Exception:
+            pass
+
+        # Collapse input box back
+        self.collapse_input()
+
     def delete_task(self, index):
-        """Removes a task from the list and re-saves it"""
-        self.task_list.pop(index)
-        save_tasks(self.task_list)
-        self.render_tasks()    
-    
+        """Removes a task from the list and re-saves it (safe against bad indexes)."""
+        try:
+            # Safe pop: check range
+            if 0 <= index < len(self.task_list):
+                self.task_list.pop(index)
+                save_tasks(self.task_list)
+                self.render_tasks()
+            else:
+                print("delete_task: index out of range:", index)
+        except Exception as e:
+            print("Error deleting task:", e)
+
     def render_tasks(self):
         """Clear and rebuild the task list display"""
+        # Defensive: ensure we have a container and task_list
+        try:
+            container = self.ids.todo_items_container
+        except Exception as e:
+            print("render_tasks: missing todo_items_container in kv:", e)
+            return
 
-        container = self.ids.todo_items_container
         container.clear_widgets()
 
+        # If no tasks, show a placeholder label (optional)
+        if not getattr(self, "task_list", None):
+            from kivymd.uix.label import MDLabel
+            placeholder = MDLabel(text="No tasks yet", halign="center", size_hint_y=None, height=dp(40))
+            container.add_widget(placeholder)
+            return
+
+        # Build each row
         from kivymd.uix.boxlayout import MDBoxLayout
         from kivymd.uix.label import MDLabel
         from kivymd.uix.button import MDIconButton
 
         for index, task in enumerate(self.task_list):
-
             row = MDBoxLayout(
-                orientation='horizontal',
+                orientation="horizontal",
                 size_hint_y=None,
                 height=dp(50),
                 padding=[dp(10), dp(5)],
-                spacing=dp(10)
+                spacing=dp(10),
             )
 
-            row.add_widget(MDLabel(
-                text=task["header"],
-                size_hint_x=0.3,
-                bold=True
-            ))
+            # header
+            row.add_widget(
+                MDLabel(text=task.get("header", ""), size_hint_x=0.3, bold=True, valign="middle")
+            )
 
-            row.add_widget(MDLabel(
-                text=task["description"],
-                size_hint_x=0.5
-            ))
+            # description
+            row.add_widget(
+                MDLabel(text=task.get("description", ""), size_hint_x=0.5, valign="middle")
+            )
 
-            row.add_widget(MDLabel(
-                text=task["due_date"],
-                size_hint_x=0.2,
-                halign="right"
-            ))
+            # due date, right aligned
+            row.add_widget(
+                MDLabel(text=task.get("due_date", ""), size_hint_x=0.2, halign="right", valign="middle")
+            )
 
-            # ❌ Delete button
-            row.add_widget(MDIconButton(
-                icon="delete",
-                on_release=lambda _, idx=index: self.delete_task(idx)
-            ))
+            # delete button — use functools.partial to avoid late-binding issues
+            delete_btn = MDIconButton(icon="delete")
+            delete_btn.bind(on_release=partial(lambda btn, idx: self.delete_task(idx), idx=index))
+            row.add_widget(delete_btn)
 
             container.add_widget(row)
-
-    def collapse_input(self):
-        """Collapses the input section back to minimal size"""
-        input_box = self.ids.input_box
-        
-        # Hide additional fields
-        self.ids.task_header_input.opacity = 0
-        self.ids.task_description_input.opacity = 0
-        self.ids.task_date_input.opacity = 0
-        
-        # Show the initial "Add a new task..." field again
-        self.ids.new_task_input.opacity = 1
-        self.ids.new_task_input.disabled = False
-        
-        # Animate height collapse
-        anim = Animation(height=dp(60), duration=0.3)
-        anim.start(input_box)
-            
