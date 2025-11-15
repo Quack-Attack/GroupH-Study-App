@@ -6,13 +6,17 @@ from kivy.animation import Animation
 from kivy.metrics import dp
 from kivy.clock import Clock
 
+import re
+from kivymd.uix.dialog import MDDialog, MDDialogButtonContainer, MDDialogHeadlineText
+from kivymd.uix.button import MDButton, MDButtonText
+from kivymd.uix.button import MDIconButton
+
 import json
 from pathlib import Path
 from functools import partial
 
 # Save file next to this python file (safer than CWD)
 DATA_FILE = Path(__file__).parent / "todo_items.json"
-
 
 def load_tasks():
     """Load JSON tasks, return list on success or empty list on error."""
@@ -27,7 +31,6 @@ def load_tasks():
         # If the file is corrupted or unreadable, warn and return empty list.
         print(f"Warning: couldn't load tasks ({e}). Starting with empty list.")
     return []
-
 
 def save_tasks(task_list):
     """Save list of tasks to JSON (pretty-printed)."""
@@ -114,6 +117,35 @@ class ToDoScreen(MDScreen):
         anim = Animation(height=dp(60), duration=0.18)
         anim.start(input_box)
 
+    from kivymd.uix.dialog import (
+    MDDialog,
+    MDDialogHeadlineText,
+    MDDialogButtonContainer,
+    )
+    from kivymd.uix.button import MDButton, MDButtonText
+
+    def show_error(self, message):
+        self.dialog = MDDialog(
+            children=[
+                MDDialogHeadlineText(
+                    text="Invalid Input",
+                ),
+                MDDialogButtonContainer(
+                    children=[
+                        MDButton(
+                            style="elevated",
+                            on_release=lambda btn: self.dialog.dismiss(),
+                            children=[
+                                MDButtonText(text="OK")
+                            ],
+                        )
+                    ]
+                ),
+            ],
+            text=message,  # <-- this is allowed because children is ONE argument
+        )
+        self.dialog.open()
+
     # --- Unified add + save ---
     def addTask(self):
         """
@@ -136,6 +168,16 @@ class ToDoScreen(MDScreen):
             # Do not add blank-header tasks
             print("No header entered")
             return
+        
+        # Compile the expected formatting for the due dates
+        DATE_REGEX = re.compile(
+            r"^(0[1-9]|1[0-2])/?([0-2][0-9]|3[0-1])/?([0-9]{4})$"
+            )
+
+        date_text = self.ids.task_date_input.text.strip()
+        if date_text and not DATE_REGEX.match(date_text):
+            self.show_error("\n\nDate must be MM/DD/YYYY\n\n")
+            return  # stop saving the task
 
         # Build task dictionary and append
         task = {"header": header, "description": description, "due_date": due_date}
@@ -173,6 +215,24 @@ class ToDoScreen(MDScreen):
         except Exception as e:
             print("Error deleting task:", e)
 
+    def _make_delete_btn(self, index: int) -> MDIconButton:
+        # Create the button
+        btn = MDIconButton(
+            icon="delete",
+            # Optional, depending on theme
+            theme_text_color="Custom",
+            text_color=(1, 0, 0, 1),  # red delete button
+            size_hint=(None, None),
+            size=(dp(36), dp(36)),
+        )
+
+        # Bind the callback AFTER creation
+        def on_release_handler(btn_widget):
+            self.delete_task(index)
+
+        btn.bind(on_release=on_release_handler)
+        return btn
+        
     def render_tasks(self):
         """Clear and rebuild the task list display"""
         # Defensive: ensure we have a container and task_list
@@ -194,7 +254,6 @@ class ToDoScreen(MDScreen):
         # Build each row
         from kivymd.uix.boxlayout import MDBoxLayout
         from kivymd.uix.label import MDLabel
-        from kivymd.uix.button import MDIconButton
 
         for index, task in enumerate(self.task_list):
             row = MDBoxLayout(
@@ -220,9 +279,8 @@ class ToDoScreen(MDScreen):
                 MDLabel(text=task.get("due_date", ""), size_hint_x=0.2, halign="right", valign="middle")
             )
 
-            # delete button — use functools.partial to avoid late-binding issues
-            delete_btn = MDIconButton(icon="delete")
-            delete_btn.bind(on_release=partial(lambda btn, idx: self.delete_task(idx), idx=index))
-            row.add_widget(delete_btn)
+            row.add_widget(self._make_delete_btn(index))
 
             container.add_widget(row)
+
+    

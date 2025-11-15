@@ -75,8 +75,9 @@
             spacing: dp(5)
             padding: dp(5)
             
+
             # Additional fields (hidden initially, opacity=0)
-            MDTextField:
+            MDTextField: #This one temporarily holds the header text
                 fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
                 id: task_header_input
                 mode: "outlined"
@@ -84,8 +85,7 @@
                 MDTextFieldHintText:
                     text: "Input Task Header"
 
-            
-            MDTextField: #This one temporarily holds the text
+            MDTextField: #This one temporarily holds the description text
                 fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
                 id: task_description_input
                 mode: "outlined"
@@ -93,8 +93,7 @@
                 MDTextFieldHintText:
                     text: "Input Task Description"
 
-            
-            MDTextField:
+            MDTextField: #This one temporarily holds the due date
                 fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
                 id: task_date_input
                 mode: "outlined"
@@ -102,18 +101,20 @@
                 MDTextFieldHintText:
                     text: "Input Task Due Date (DD/MM/YYYY)"
             
+
             # Initial single-line input (at bottom, always visible initially)
-            MDTextField:
+            MDButton:
                 id: new_task_input
-                mode: "outlined"
-                fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
+                style: "elevated"
+                #fill_color: 0, 0, 0, 0  # Required transparency fix for dev version
                 size_hint_y: None
                 height: dp(40)
-                on_focus: if self.focus: root.expand_input()
+                on_release: root.expand_input()
 
-                MDTextFieldHintText:
+                MDButtonText:
                     text: "Add a new task..."
         
+        # Controls "Add Task" button
         MDButton:
             style: "elevated"
             size_hint_y: None
