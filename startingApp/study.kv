@@ -237,7 +237,12 @@
         # Timer display
         MDLabel: 
             id: timer_display
-            text: "00:00"
+            text: root.timer_text
+            halign: "center"
+
+        MDLabel:
+            id: status_label
+            text: "Press Start to begin."
             halign: "center"
 
         MDBoxLayout:
