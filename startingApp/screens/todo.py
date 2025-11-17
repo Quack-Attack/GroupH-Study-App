@@ -15,6 +15,12 @@ import json
 from pathlib import Path
 from functools import partial
 
+from kivy.uix.modalview import ModalView
+from kivymd.uix.card import MDCard
+from kivymd.uix.label import MDLabel
+from kivymd.uix.button import MDButton, MDButtonText
+from kivy.uix.boxlayout import BoxLayout
+
 # Save file next to this python file (safer than CWD)
 DATA_FILE = Path(__file__).parent / "todo_items.json"
 
@@ -117,56 +123,72 @@ class ToDoScreen(MDScreen):
         anim = Animation(height=dp(60), duration=0.18)
         anim.start(input_box)
 
-    from kivymd.uix.dialog import (
-    MDDialog,
-    MDDialogHeadlineText,
-    MDDialogButtonContainer,
-    )
-    from kivymd.uix.button import MDButton, MDButtonText
-
+    
     def show_error(self, message):
-        self.dialog = MDDialog(
-            children=[
-                MDDialogHeadlineText(
-                    text="Invalid Input",
-                ),
-                MDDialogButtonContainer(
-                    children=[
-                        MDButton(
-                            style="elevated",
-                            on_release=lambda btn: self.dialog.dismiss(),
-                            children=[
-                                MDButtonText(text="OK")
-                            ],
-                        )
-                    ]
-                ),
-            ],
-            text=message,  # <-- this is allowed because children is ONE argument
+
+        view = ModalView(size_hint=(0.8, 0.4), auto_dismiss=False)
+
+        card = MDCard(
+            orientation="vertical",
+            padding=20,
+            spacing=20,
+            style="elevated",
+            size_hint=(1, 1),
         )
-        self.dialog.open()
+
+        # Title (use role="large" instead of "headline")
+        card.add_widget(
+            MDLabel(
+                text="Invalid Input",
+                halign="center",
+                role="large"      # <-- FIXED
+            )
+        )
+
+        # Main message (no role needed)
+        card.add_widget(
+            MDLabel(
+                text=message,
+                halign="center"
+            )
+        )
+
+        # OK button
+        ok_btn = MDButton(
+            MDButtonText(text="OK"),
+            style="elevated",
+            pos_hint={"center_x": 0.5}
+        )
+        ok_btn.bind(on_release=view.dismiss)
+
+        card.add_widget(ok_btn)
+
+        view.add_widget(card)
+        view.open()
 
     # --- Unified add + save ---
     def addTask(self):
         """
         Adds a task (both to the UI and saved JSON).
-        This name matches your KV call: on_release: root.addTask()
         """
+
         # Defensive: ensure attributes exist
         header = ""
         description = ""
         due_date = ""
+
         try:
             header = self.ids.task_header_input.text.strip()
             description = self.ids.task_description_input.text.strip()
             due_date = self.ids.task_date_input.text.strip()
+
         except Exception:
             print("Input fields missing or not ready.")
             return
-
+        
+        # Do not add blank-header tasks
         if not header:
-            # Do not add blank-header tasks
-            print("No header entered")
+            print("No header detected.")
             return
         
         # Compile the expected formatting for the due dates
@@ -174,6 +196,7 @@ class ToDoScreen(MDScreen):
             r"^(0[1-9]|1[0-2])/?([0-2][0-9]|3[0-1])/?([0-9]{4})$"
             )
 
+        # Check formatting of the entered date
         date_text = self.ids.task_date_input.text.strip()
         if date_text and not DATE_REGEX.match(date_text):
             self.show_error("\n\nDate must be MM/DD/YYYY\n\n")
