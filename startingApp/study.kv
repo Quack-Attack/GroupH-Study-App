@@ -291,6 +291,7 @@
                 fill_color: 0, 0, 0, 1
                 mode: "filled"
                 text: "25"
+                on_text: root.validate_int(self, 1, 200)
 
                 MDTextFieldHintText:
                     text: "Work Minutes"
@@ -300,6 +301,7 @@
                 fill_color: 0, 0, 0, 1
                 mode: "filled"
                 text: "5"
+                on_text: root.validate_int(self, 1, 30)
 
                 MDTextFieldHintText:
                     text: "Short Break Minutes"
@@ -309,6 +311,7 @@
                 fill_color: 0, 0, 0, 1
                 mode: "filled"
                 text: "15"
+                on_text: root.validate_int(self, 1, 200)
 
                 MDTextFieldHintText:
                     text: "Long Break Minutes"
@@ -318,6 +321,7 @@
                 fill_color: 0, 0, 0, 1
                 mode: "filled"
                 text: "4"
+                on_text: root.validate_int(self, 1, 20)
 
                 MDTextFieldHintText:
                     text: "Amount of Sessions"

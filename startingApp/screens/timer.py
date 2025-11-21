@@ -25,8 +25,44 @@ class TimerScreen(MDScreen):
     # Clock event
     clock_event = None
 
+    # ------------------------------
+    #       Integer Validation
+    # ------------------------------
+    def validate_int(self, textfield, min_value=0, max_value=20):
+        text = textfield.text
+
+        # Only allow digits
+        if not text.isdigit():
+            textfield.error = True
+            textfield.helper_text = "Numbers only"
+            textfield.helper_text_mode = "on_error"
+            return
+
+        value = int(text)
+
+        # Range overflow checking
+        if value < min_value or value > max_value:
+            textfield.error = True
+            textfield.helper_text = f"Must be {min_value}-{max_value}"
+            textfield.helper_text_mode = "on_error"
+            return
+
+        # Clear errors if valid
+        textfield.error = False
+        textfield.helper_text = ""
+        textfield.helper_text_mode = "persistent"
+    
     def start_pomodoro(self):
         """Starts or resumes the timer."""
+        if (
+            self.ids.work_minutes_input.error or
+            self.ids.short_break_minutes_input.error or
+            self.ids.long_break_minutes_input.error or
+            self.ids.sessions_input.error
+        ):
+            print("Cannot start — invalid input!")
+            return
+
         if self.clock_event:      # If already running, ignore
             return
 
