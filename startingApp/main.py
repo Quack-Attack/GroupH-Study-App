@@ -13,6 +13,7 @@ from kivymd.uix.button import MDButton
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from kivymd.uix.floatlayout import FloatLayout #this imports the FloatLayout from study.kv
+from kivy.properties import StringProperty
 
 from screens.todo import ToDoScreen #ToDo screen is incomplete, but this is the import call for the todo screen
 from screens.flashCards import FlashCardsScreen #FlashCards screen is incomplete, but this is the import call for the flash cards screen
@@ -28,6 +29,9 @@ from screens.settings import SettingsScreen #to be activated when the Settings s
 
 #class RootWidget(FloatLayout):
 #    pass
+
+class RootWidget(FloatLayout):
+    bg_source = StringProperty("assets/StandardBackground.png")
 
 class StudyApp(MDApp):
     def build(self):

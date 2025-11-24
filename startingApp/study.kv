@@ -1,9 +1,11 @@
 <RootWidget@FloatLayout>:
+    bg_source: "assets/StandardBackground.png"
+
     canvas.before:
         Rectangle:
-            source: "assets/StandardBackground.png"
+            source: root.bg_source
             pos: self.pos
-            size: self.size  
+            size: self.size
             
     MDScreenManager:
         id: screen_manager_root
@@ -328,11 +330,16 @@
         
                 
 <SettingsScreen@MDScreen>:
-    MDBoxLayout:
-        orientation: 'vertical'
-        MDLabel: 
-            text: "This is the Settings Screen"
-            halign: "center"
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "center"
 
+        MDButton:
+            style: "elevated"
+            size_hint: (None, None)
+            width: dp(200)
+            height: dp(50)
+            on_release: root.toggle_dark_mode()
 
-
+            MDButtonText:
+                text: "Dark Mode"
