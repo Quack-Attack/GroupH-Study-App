@@ -13,16 +13,16 @@ from kivymd.uix.button import MDIconButton
 
 import json
 from pathlib import Path
-from functools import partial
 
 from kivy.uix.modalview import ModalView
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDButton, MDButtonText
 from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.selectioncontrol import MDCheckbox  # <-- NEW
 
 # Save file next to this python file (safer than CWD)
 DATA_FILE = Path(__file__).parent / "todo_items.json"
+
 
 def load_tasks():
     """Load JSON tasks, return list on success or empty list on error."""
@@ -37,6 +37,7 @@ def load_tasks():
         # If the file is corrupted or unreadable, warn and return empty list.
         print(f"Warning: couldn't load tasks ({e}). Starting with empty list.")
     return []
+
 
 def save_tasks(task_list):
     """Save list of tasks to JSON (pretty-printed)."""
@@ -123,7 +124,6 @@ class ToDoScreen(MDScreen):
         anim = Animation(height=dp(60), duration=0.18)
         anim.start(input_box)
 
-    
     def show_error(self, message):
 
         view = ModalView(size_hint=(0.8, 0.4), auto_dismiss=False)
@@ -141,7 +141,7 @@ class ToDoScreen(MDScreen):
             MDLabel(
                 text="Invalid Input",
                 halign="center",
-                role="large"      # <-- FIXED
+                role="large"
             )
         )
 
@@ -185,16 +185,16 @@ class ToDoScreen(MDScreen):
         except Exception:
             print("Input fields missing or not ready.")
             return
-        
+
         # Do not add blank-header tasks
         if not header:
             print("No header detected.")
             return
-        
+
         # Compile the expected formatting for the due dates
         DATE_REGEX = re.compile(
             r"^(0[1-9]|1[0-2])/?([0-2][0-9]|3[0-1])/?([0-9]{4})$"
-            )
+        )
 
         # Check formatting of the entered date
         date_text = self.ids.task_date_input.text.strip()
@@ -203,7 +203,12 @@ class ToDoScreen(MDScreen):
             return  # stop saving the task
 
         # Build task dictionary and append
-        task = {"header": header, "description": description, "due_date": due_date}
+        task = {
+            "header": header,
+            "description": description,
+            "due_date": due_date,
+            "completed": False,      # <-- NEW field
+        }
         if not hasattr(self, "task_list"):
             self.task_list = load_tasks()
         self.task_list.append(task)
@@ -225,6 +230,48 @@ class ToDoScreen(MDScreen):
         # Collapse input box back
         self.collapse_input()
 
+    # ---------- NEW: reordering logic ----------
+
+    def move_task_up(self, index: int):
+        """Move a task one position up (if possible)."""
+        if index <= 0 or index >= len(self.task_list):
+            return
+        self.task_list[index - 1], self.task_list[index] = \
+            self.task_list[index], self.task_list[index - 1]
+        save_tasks(self.task_list)
+        self.render_tasks()
+
+    def move_task_down(self, index: int):
+        """Move a task one position down (if possible)."""
+        if index < 0 or index >= len(self.task_list) - 1:
+            return
+        self.task_list[index + 1], self.task_list[index] = \
+            self.task_list[index], self.task_list[index + 1]
+        save_tasks(self.task_list)
+        self.render_tasks()
+
+    # ---------- NEW: completion / checkbox logic ----------
+
+    def toggle_task_complete(self, index: int, value: bool):
+        """Mark a task as complete/incomplete and save."""
+        if 0 <= index < len(self.task_list):
+            self.task_list[index]["completed"] = bool(value)
+            save_tasks(self.task_list)
+            self.render_tasks()
+
+    def _make_checkbox(self, index: int, completed: bool) -> MDCheckbox:
+        cb = MDCheckbox(
+            size_hint=(None, None),
+            size=(dp(32), dp(32)),
+            active=completed,
+        )
+
+        def on_active_cb(checkbox, value):
+            self.toggle_task_complete(index, value)
+
+        cb.bind(active=on_active_cb)
+        return cb
+
     def delete_task(self, index):
         """Removes a task from the list and re-saves it (safe against bad indexes)."""
         try:
@@ -242,7 +289,6 @@ class ToDoScreen(MDScreen):
         # Create the button
         btn = MDIconButton(
             icon="delete",
-            # Optional, depending on theme
             theme_text_color="Custom",
             text_color=(1, 0, 0, 1),  # red delete button
             size_hint=(None, None),
@@ -255,7 +301,39 @@ class ToDoScreen(MDScreen):
 
         btn.bind(on_release=on_release_handler)
         return btn
-        
+
+    # ---------- move buttons ----------
+
+    def _make_move_up_btn(self, index: int) -> MDIconButton:
+        btn = MDIconButton(
+            icon="chevron-up",
+            size_hint=(None, None),
+            size=(dp(36), dp(36)),
+        )
+
+        if index == 0:
+            # First item can't move up
+            btn.disabled = True
+            btn.opacity = 0.3
+        else:
+            btn.bind(on_release=lambda w: self.move_task_up(index))
+        return btn
+
+    def _make_move_down_btn(self, index: int, total: int) -> MDIconButton:
+        btn = MDIconButton(
+            icon="chevron-down",
+            size_hint=(None, None),
+            size=(dp(36), dp(36)),
+        )
+
+        if index == total - 1:
+            # Last item can't move down
+            btn.disabled = True
+            btn.opacity = 0.3
+        else:
+            btn.bind(on_release=lambda w: self.move_task_down(index))
+        return btn
+
     def render_tasks(self):
         """Clear and rebuild the task list display"""
         # Defensive: ensure we have a container and task_list
@@ -270,7 +348,12 @@ class ToDoScreen(MDScreen):
         # If no tasks, show a placeholder label (optional)
         if not getattr(self, "task_list", None):
             from kivymd.uix.label import MDLabel
-            placeholder = MDLabel(text="No tasks yet", halign="center", size_hint_y=None, height=dp(40))
+            placeholder = MDLabel(
+                text="No tasks yet",
+                halign="center",
+                size_hint_y=None,
+                height=dp(40),
+            )
             container.add_widget(placeholder)
             return
 
@@ -278,7 +361,11 @@ class ToDoScreen(MDScreen):
         from kivymd.uix.boxlayout import MDBoxLayout
         from kivymd.uix.label import MDLabel
 
+        total = len(self.task_list)
+
         for index, task in enumerate(self.task_list):
+            completed = task.get("completed", False)
+
             row = MDBoxLayout(
                 orientation="horizontal",
                 size_hint_y=None,
@@ -287,23 +374,49 @@ class ToDoScreen(MDScreen):
                 spacing=dp(10),
             )
 
+            # Checkbox first
+            row.add_widget(self._make_checkbox(index, completed))
+
             # header
-            row.add_widget(
-                MDLabel(text=task.get("header", ""), size_hint_x=0.3, bold=True, valign="middle")
+            header_text = task.get("header", "")
+            if completed:
+                header_text = f"[s]{header_text}[/s]"
+            header_label = MDLabel(
+                text=header_text,
+                size_hint_x=0.3,
+                bold=True,
+                valign="middle",
+                markup=True,  # enable [s]...[/s]
             )
+            row.add_widget(header_label)
 
             # description
+            desc_text = task.get("description", "")
+            if completed:
+                desc_text = f"[s]{desc_text}[/s]"
+            desc_label = MDLabel(
+                text=desc_text,
+                size_hint_x=0.5,
+                valign="middle",
+                markup=True,
+            )
+            row.add_widget(desc_label)
+
+            # due date, right aligned (no strikethrough needed, but you can add it if you want)
             row.add_widget(
-                MDLabel(text=task.get("description", ""), size_hint_x=0.5, valign="middle")
+                MDLabel(
+                    text=task.get("due_date", ""),
+                    size_hint_x=0.2,
+                    halign="right",
+                    valign="middle",
+                )
             )
 
-            # due date, right aligned
-            row.add_widget(
-                MDLabel(text=task.get("due_date", ""), size_hint_x=0.2, halign="right", valign="middle")
-            )
+            # move up / move down buttons
+            row.add_widget(self._make_move_up_btn(index))
+            row.add_widget(self._make_move_down_btn(index, total))
 
+            # delete button
             row.add_widget(self._make_delete_btn(index))
 
             container.add_widget(row)
-
-    
