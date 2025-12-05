@@ -13,6 +13,8 @@ from kivymd.uix.button import MDIconButton
 
 import json
 from pathlib import Path
+from datetime import datetime, timedelta
+from typing import List
 
 from kivy.uix.modalview import ModalView
 from kivymd.uix.card import MDCard
@@ -46,6 +48,131 @@ def save_tasks(task_list):
             json.dump(task_list, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"Error saving tasks: {e}")
+
+
+# ==================== INPUT VALIDATION FUNCTIONS (CWE-20) ====================
+
+def validate_task_title(title: str) -> tuple[bool, str]:
+    """
+    Validate task title to prevent injection attacks (CWE-20).
+    Returns: (is_valid, error_message)
+    """
+    if not title or not isinstance(title, str):
+        return False, "Task title cannot be empty!"
+    
+    # Enforce length constraints
+    if len(title) < 1 or len(title) > 100:
+        return False, "Task title must be between 1 and 100 characters!"
+    
+    # Check for potentially dangerous patterns
+    dangerous_patterns = ['<script', '</script>', 'javascript:', 'onerror=', 
+                         'onclick=', '<iframe', 'eval(', 'DROP TABLE', 
+                         'DELETE FROM', '--', '/*', '*/']
+    
+    title_lower = title.lower()
+    for pattern in dangerous_patterns:
+        if pattern in title_lower:
+            return False, f"Task title contains dangerous pattern: {pattern}"
+    
+    # Allow only safe characters: letters, numbers, spaces, and basic punctuation
+    if not re.match(r'^[a-zA-Z0-9\s\.,!?\-\(\)\'\"]+$', title):
+        return False, "Task title contains invalid characters!"
+    
+    return True, ""
+
+
+def validate_task_description(description: str) -> tuple[bool, str]:
+    """
+    Validate task description with stricter limits (CWE-20).
+    Returns: (is_valid, error_message)
+    """
+    if not description:
+        return True, ""  # Description is optional
+    
+    if not isinstance(description, str):
+        return False, "Invalid description format!"
+    
+    # Enforce maximum length to prevent resource exhaustion
+    if len(description) > 500:
+        return False, "Description too long! Maximum 500 characters allowed."
+    
+    # Check for dangerous patterns (XSS/SQL injection)
+    dangerous_patterns = ['<script', '</script>', 'javascript:', 'onerror=',
+                         'onclick=', '<iframe', 'eval(', 'DROP TABLE',
+                         'DELETE FROM', 'INSERT INTO', 'UPDATE ', '--', '/*']
+    
+    desc_lower = description.lower()
+    for pattern in dangerous_patterns:
+        if pattern in desc_lower:
+            return False, f"Description contains dangerous pattern: {pattern}"
+    
+    return True, ""
+
+
+def validate_due_date(due_date: str) -> tuple[bool, str]:
+    """
+    Validate due date format and logical constraints (CWE-20).
+    Accepts MM/DD/YYYY format (current UI format).
+    Returns: (is_valid, error_message)
+    """
+    if not due_date or not isinstance(due_date, str):
+        return True, ""  # Date is optional
+    
+    # Remove whitespace
+    due_date = due_date.strip()
+    
+    if not due_date:  # Empty after stripping
+        return True, ""
+    
+    # Validate format: MM/DD/YYYY (matching current UI format)
+    if not re.match(r'^(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/(\d{4})$', due_date):
+        return False, "Invalid date format! Use MM/DD/YYYY (e.g., 12/31/2025)"
+    
+    # Parse and validate the date
+    try:
+        parsed_date = datetime.strptime(due_date, '%m/%d/%Y')
+    except ValueError:
+        return False, "Invalid date! Please check the day/month values."
+    
+    # Check if date is not too far in the past (allow up to 1 day in past for flexibility)
+    if parsed_date < datetime.now() - timedelta(days=1):
+        return False, "Due date cannot be in the past!"
+    
+    # Prevent unreasonably far future dates (max 5 years)
+    if parsed_date > datetime.now() + timedelta(days=1825):
+        return False, "Due date too far in the future! Maximum 5 years allowed."
+    
+    return True, ""
+
+
+def validate_tags(tags: List[str]) -> tuple[bool, str]:
+    """
+    Validate tags list to prevent injection (CWE-20).
+    Returns: (is_valid, error_message)
+    """
+    if not tags:
+        return True, ""  # Tags are optional
+    
+    if not isinstance(tags, list):
+        return False, "Tags must be provided as a list!"
+    
+    # Limit number of tags
+    if len(tags) > 10:
+        return False, "Too many tags! Maximum 10 tags allowed."
+    
+    for tag in tags:
+        if not isinstance(tag, str):
+            return False, "Each tag must be a string!"
+        
+        # Validate each tag
+        if len(tag) < 1 or len(tag) > 20:
+            return False, "Each tag must be 1-20 characters!"
+        
+        # Only allow alphanumeric and hyphens
+        if not re.match(r'^[a-zA-Z0-9\-]+$', tag):
+            return False, f"Invalid tag '{tag}'! Use only letters, numbers, and hyphens."
+    
+    return True, ""
 
 
 class ToDoScreen(MDScreen):
@@ -191,16 +318,27 @@ class ToDoScreen(MDScreen):
             print("No header detected.")
             return
 
-        # Compile the expected formatting for the due dates
-        DATE_REGEX = re.compile(
-            r"^(0[1-9]|1[0-2])/?([0-2][0-9]|3[0-1])/?([0-9]{4})$"
-        )
+        # ========== INPUT VALIDATION (CWE-20) ==========
+        
+        # Validate task title
+        is_valid, error_msg = validate_task_title(header)
+        if not is_valid:
+            self.show_error(f"\n\n{error_msg}\n\n")
+            return
+        
+        # Validate description
+        is_valid, error_msg = validate_task_description(description)
+        if not is_valid:
+            self.show_error(f"\n\n{error_msg}\n\n")
+            return
+        
+        # Validate due date
+        is_valid, error_msg = validate_due_date(due_date)
+        if not is_valid:
+            self.show_error(f"\n\n{error_msg}\n\n")
+            return
 
-        # Check formatting of the entered date
-        date_text = self.ids.task_date_input.text.strip()
-        if date_text and not DATE_REGEX.match(date_text):
-            self.show_error("\n\nDate must be MM/DD/YYYY\n\n")
-            return  # stop saving the task
+        # ========== END VALIDATION ==========
 
         # Build task dictionary and append
         task = {

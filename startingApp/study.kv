@@ -131,104 +131,137 @@
 
     MDBoxLayout:
         orientation: "vertical"
+        padding: 0, 0, 0, dp(60)
 
-        # --- Top-left add button locked to upper-right corner ---
-        AnchorLayout:
-            anchor_x: "right"
-            anchor_y: "top"
+        # --- Top buttons: View All (left) and Add (right) ---
+        MDBoxLayout:
             size_hint_y: None
             height: dp(64)
             padding: dp(8)
+            spacing: dp(8)
 
+            # View All Cards button (LEFT)
+            MDButton:
+                id: view_toggle_btn
+                size_hint: None, None
+                size: dp(150), dp(40)
+                style: "elevated"
+                on_release: root.toggle_view_mode()
+                MDButtonText:
+                    text: "View All Cards"
+
+            Widget:  # Spacer
+
+            # Add Card button (RIGHT)
             MDButton:
                 size_hint: None, None
                 size: dp(130), dp(40)
+                style: "elevated"
                 on_release: root.open_add_dialog()
                 MDButtonText:
                     text: "+ Add Card"
 
-        # small padding so the top of the flashcard sits just beneath the button
-        Widget:
-            size_hint_y: None
-            height: dp(8)
+        # --- Container for both views (they swap visibility) ---
+        FloatLayout:
+            # --- SINGLE CARD VIEW - CENTERED ---
+            FloatLayout:
+                id: single_card_container
+                padding: dp(60), dp(20), dp(60), dp(60)
 
-        # --- Main area: arrows + card ---
-        BoxLayout:
-            size_hint_y: 1
+                # Center the card
+                AnchorLayout:
+                    anchor_x: "center"
+                    anchor_y: "center"
 
-            # Left column: left arrow, anchored to right
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        size_hint: None, None
+                        width: min(root.width * 0.75, dp(625))
+                        height: (self.width / 1.6667) + dp(32)
+
+                        MDCard:
+                            id: flashcard
+                            elevation: 1
+                            radius: 5
+                            padding: "12dp"
+                            ripple_behavior: True
+                            on_release: root.flip_card()
+
+                            size_hint: None, None
+                            width: self.parent.width
+                            height: self.width / 1.6667
+
+                            MDLabel:
+                                id: flashcard_text
+                                text: root.current_text
+                                halign: "center"
+                                valign: "center"
+                                theme_text_color: "Primary"
+                                text_size: self.width * 0.9, None
+
+                        MDLabel:
+                            id: index_label
+                            text: f"{root.current_index + 1}/{len(root.cards)}" if root.cards else ""
+                            halign: "center"
+                            theme_text_color: "Secondary"
+                            size_hint_y: None
+                            height: dp(32)
+
+            # --- GRID VIEW - STARTS AT TOP OF THIS CONTAINER ---
+            MDBoxLayout:
+                id: grid_view_container
+                orientation: "vertical"
+                opacity: 0
+                disabled: True
+
+                MDLabel:
+                    text: "All Flashcards"
+                    halign: "center"
+                    size_hint_y: None
+                    height: dp(40)
+                    font_size: "20sp"
+                    bold: True
+
+                ScrollView:
+                    id: grid_scroll_view
+                    do_scroll_x: False
+                    do_scroll_y: True
+                    bar_width: dp(10)
+
+            # Left arrow - on top layer (moved AFTER other content)
             AnchorLayout:
-                anchor_x: "right"
+                id: single_card_container_left_arrow
+                anchor_x: "left"
                 anchor_y: "center"
                 size_hint_x: None
-                width: "24dp"
+                width: dp(60)
+                opacity: 1
+                disabled: False
 
                 MDIconButton:
                     icon: "chevron-left"
                     size_hint: None, None
                     user_font_size: "48dp"
-                    size: "24dp", "24dp"
+                    size: dp(48), dp(48)
                     on_release: root.prev_card()
 
-            # Center column: anchored card + index (index locked directly underneath)
+            # Right arrow - on top layer (moved AFTER other content)
             AnchorLayout:
-                anchor_x: "center"
-                anchor_y: "center"
-
-                MDBoxLayout:
-                    orientation: "vertical"
-                    size_hint: None, None
-                    # width: follow available center column but max to a percent of window
-                    width: min(self.parent.width * 0.95, root.width * 0.85)
-                    # height: don't exceed 80% of the screen; otherwise be card + index height
-                    height: min(root.height * 0.8, (self.width / 1.6667) + dp(32))
-
-                    MDCard:
-                        id: flashcard
-                        elevation: 1
-                        radius: 5
-                        padding: "12dp"
-                        ripple_behavior: True
-                        on_release: root.flip_card()
-
-                        # Keep 5:3 aspect ratio but never exceed available wrapper space
-                        size_hint: None, None
-                        width: self.parent.width
-                        height: min(self.width / 1.6667, self.parent.height - index_label.height)
-
-                        MDLabel:
-                            id: flashcard_text
-                            text: root.current_text
-                            halign: "center"
-                            valign: "center"
-                            theme_text_color: "Primary"
-                            text_size: self.width * 0.9, None
-
-                    MDLabel:
-                        id: index_label
-                        text: f"{root.current_index + 1}/{len(root.cards)}" if root.cards else ""
-                        halign: "center"
-                        theme_text_color: "Secondary"
-                        size_hint_y: None
-                        height: dp(32)
-
-            # Right column: right arrow, anchored to left
-            AnchorLayout:
-                anchor_x: "left"
+                id: single_card_container_right_arrow
+                anchor_x: "right"
                 anchor_y: "center"
                 size_hint_x: None
-                width: "24dp"
+                width: dp(60)
+                pos_hint: {"right": 1}
+                opacity: 1
+                disabled: False
 
                 MDIconButton:
                     icon: "chevron-right"
                     size_hint: None, None
-                    user_font_size: "36dp"
-                    size: "24dp", "24dp"
+                    user_font_size: "48dp"
+                    size: dp(48), dp(48)
                     on_release: root.next_card()
-
-        # Bottom spacer
-        Widget:
-            size_hint_y: 0.05
 
 <TimerScreen@MDScreen>:
     MDBoxLayout:
