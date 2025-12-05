@@ -15,6 +15,10 @@ from kivy.uix.widget import Widget
 from kivymd.uix.button import MDButton, MDButtonText
 from kivymd.uix.textfield import MDTextField
 from kivymd.uix.label import MDLabel
+from kivymd.uix.card import MDCard
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.gridlayout import GridLayout
+from kivy.metrics import dp
 
 
 class FlashCardsScreen(MDScreen):
@@ -22,6 +26,7 @@ class FlashCardsScreen(MDScreen):
     current_index = NumericProperty(0)
     showing_back = BooleanProperty(False)
     current_text = StringProperty("No cards yet. Add one!")
+    view_mode = StringProperty("single")  # "single" or "grid"
 
     # ----------------------------
     # Screen Lifecycle
@@ -78,6 +83,187 @@ class FlashCardsScreen(MDScreen):
             self.current_index = max(0, len(self.cards) - 1)
         self.showing_back = False
         self._update_current_text()
+
+    # ----------------------------
+    # View Mode Toggle
+    # ----------------------------
+    def toggle_view_mode(self):
+        """Toggle between single card and grid view"""
+        if self.view_mode == "single":
+            self.view_mode = "grid"
+            self._show_grid_view()
+        else:
+            self.view_mode = "single"
+            self._show_single_view()
+
+    def _show_single_view(self):
+        """Show single card view, hide grid"""
+        try:
+            single_container = self.ids.get('single_card_container')
+            grid_container = self.ids.get('grid_view_container')
+            left_arrow = self.ids.get('single_card_container_left_arrow')
+            right_arrow = self.ids.get('single_card_container_right_arrow')
+            view_btn = self.ids.get('view_toggle_btn')
+            
+            if single_container:
+                single_container.opacity = 1
+                single_container.disabled = False
+            
+            if left_arrow:
+                left_arrow.opacity = 1
+                left_arrow.disabled = False
+            
+            if right_arrow:
+                right_arrow.opacity = 1
+                right_arrow.disabled = False
+            
+            if grid_container:
+                grid_container.opacity = 0
+                grid_container.disabled = True
+            
+            if view_btn:
+                for child in view_btn.children:
+                    if isinstance(child, MDButtonText):
+                        child.text = "View All Cards"
+            
+            self._update_current_text()
+        except Exception as e:
+            print(f"Error showing single view: {e}")
+
+    def _show_grid_view(self):
+        """Show grid view, hide single card"""
+        try:
+            single_container = self.ids.get('single_card_container')
+            grid_container = self.ids.get('grid_view_container')
+            grid_scroll = self.ids.get('grid_scroll_view')
+            left_arrow = self.ids.get('single_card_container_left_arrow')
+            right_arrow = self.ids.get('single_card_container_right_arrow')
+            view_btn = self.ids.get('view_toggle_btn')
+            
+            # Hide single view
+            if single_container:
+                single_container.opacity = 0
+                single_container.disabled = True
+            
+            # Hide arrows
+            if left_arrow:
+                left_arrow.opacity = 0
+                left_arrow.disabled = True
+            
+            if right_arrow:
+                right_arrow.opacity = 0
+                right_arrow.disabled = True
+            
+            # Show grid view
+            if grid_container:
+                grid_container.opacity = 1
+                grid_container.disabled = False
+            
+            # Update button text
+            if view_btn:
+                for child in view_btn.children:
+                    if isinstance(child, MDButtonText):
+                        child.text = "Back to Card"
+            
+            # Build the grid
+            if grid_scroll:
+                self._build_grid(grid_scroll)
+            else:
+                print("grid_scroll_view not found!")
+                
+        except Exception as e:
+            print(f"Error showing grid view: {e}")
+
+    def _build_grid(self, scroll_view):
+        """Build the grid of cards"""
+        # Clear existing content
+        scroll_view.clear_widgets()
+        
+        if not self.cards:
+            # Show "no cards" message
+            no_cards = MDLabel(
+                text="No flashcards yet. Add some to get started!",
+                halign="center",
+                valign="middle",
+            )
+            scroll_view.add_widget(no_cards)
+            return
+        
+        # Create grid layout
+        grid = GridLayout(
+            cols=2,
+            spacing=dp(15),
+            padding=dp(15),
+            size_hint_y=None,
+        )
+        grid.bind(minimum_height=grid.setter('height'))
+        
+        # Add each card to grid
+        for index, card in enumerate(self.cards):
+            card_widget = self._create_card_preview(card, index)
+            grid.add_widget(card_widget)
+        
+        scroll_view.add_widget(grid)
+
+    def _create_card_preview(self, card, index):
+        """Create a clickable preview card for the grid"""
+        # Get card text (front side)
+        front_text = card.get("front", "")
+        
+        # Truncate if too long
+        if len(front_text) > 60:
+            display_text = front_text[:60] + "..."
+        else:
+            display_text = front_text
+        
+        # Create card widget
+        card_box = BoxLayout(
+            orientation="vertical",
+            size_hint_y=None,
+            height=dp(120),
+        )
+        
+        card_widget = MDCard(
+            orientation="vertical",
+            padding=dp(15),
+            size_hint_y=None,
+            height=dp(120),
+            ripple_behavior=True,
+            style="elevated",
+        )
+        
+        # Card number
+        number_label = MDLabel(
+            text=f"Card {index + 1}",
+            size_hint_y=None,
+            height=dp(20),
+            font_size="12sp",
+            theme_text_color="Secondary",
+        )
+        
+        # Card content
+        content_label = MDLabel(
+            text=display_text,
+            halign="center",
+            valign="middle",
+            font_size="14sp",
+        )
+        
+        card_widget.add_widget(number_label)
+        card_widget.add_widget(content_label)
+        
+        # Make clickable
+        card_widget.bind(on_release=lambda x: self._jump_to_card(index))
+        
+        card_box.add_widget(card_widget)
+        return card_box
+
+    def _jump_to_card(self, index):
+        """Jump to specific card and return to single view"""
+        self.current_index = index
+        self.showing_back = False
+        self.view_mode = "single"
+        self._show_single_view()
 
     # ----------------------------
     # Add Flashcard Dialog
