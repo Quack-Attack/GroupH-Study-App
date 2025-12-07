@@ -19,6 +19,7 @@ from screens.todo import ToDoScreen #ToDo screen is incomplete, but this is the 
 from screens.flashCards import FlashCardsScreen #FlashCards screen is incomplete, but this is the import call for the flash cards screen
 from screens.timer import TimerScreen #Timer screen is incomplete, but this is the import call for the timer screen
 from screens.settings import SettingsScreen #to be activated when the Settings screen is online
+from screens.AI_screen import AIWordScreen #AI screen import
 
 #from kivy.lang import Builder #this line and the one below would be needed if the .kv file for main were named
                                 #something other than 'study' because kivy likes the name to be the same as the 
