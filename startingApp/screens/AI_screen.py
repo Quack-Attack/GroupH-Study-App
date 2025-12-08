@@ -1,7 +1,7 @@
 from kivy.lang import Builder
 from kivy.uix.screenmanager import Screen
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.button import MDRectangleFlatButton
+#from kivymd.uix.button import MDRectangleFlatButton
 from openai import OpenAI
 
 KV = """
