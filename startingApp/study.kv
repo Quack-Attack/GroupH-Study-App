@@ -17,6 +17,8 @@
             name: "timer"
         SettingsScreen:
             name: "settings"
+        AIWordScreen:
+            name: "ai"
         
     # Bottom Navigation Bar
     MDBoxLayout:
@@ -45,6 +47,12 @@
             on_release: app.root.ids.screen_manager_root.current = "timer"
             MDButtonText:
                 text: "Timer"
+
+        MDButton:
+            style: "elevated"
+            on_release: app.root.ids.screen_manager_root.current = "ai"
+            MDButtonText:
+                text: "Definitions"
 
         MDButton:
             style: "elevated"
