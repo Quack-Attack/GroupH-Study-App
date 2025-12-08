@@ -120,6 +120,8 @@ class FlashCardsScreen(MDScreen):
             if grid_container:
                 grid_container.opacity = 0
                 grid_container.disabled = True
+                grid_container.size_hint_y = None
+                grid_container.height = 0
             
             if view_btn:
                 for child in view_btn.children:
@@ -158,6 +160,8 @@ class FlashCardsScreen(MDScreen):
             if grid_container:
                 grid_container.opacity = 1
                 grid_container.disabled = False
+                grid_container.size_hint_y = 1
+                grid_container.height = dp(0)  # ignored when size_hint_y=1
             
             # Update button text
             if view_btn:
